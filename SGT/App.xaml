@@ -1,0 +1,136 @@
+﻿<Application
+    x:Class="SGT.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:SGT"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewModels="clr-namespace:SGT.ViewModels"
+    xmlns:views="clr-namespace:SGT.Views"
+    DispatcherUnhandledException="Application_DispatcherUnhandledException"
+    Exit="Application_Exit">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--  MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive!  -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <!--  Theme setting  -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Cobalt.xaml" />
+                <ResourceDictionary Source="FilterControl.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate DataType="{x:Type viewModels:VisualizarPropostaViewModel}">
+                <views:VisualizarPropostaView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ParametrosViewModel}">
+                <views:ParametrosView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AlterarSenhaComAtualViewModel}">
+                <views:AlterarSenhaComAtualView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:GerenciarUsuariosViewModel}">
+                <views:GerenciarUsuariosView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:CadastrarViewModel}">
+                <views:CadastrarView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:PerfilViewModel}">
+                <views:PerfilView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:LogAlteracoesViewModel}">
+                <views:LogAlteracoesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:RegistroManifestacoesViewModel}">
+                <views:RegistroManifestacoesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:PesquisarRegistroManifestacoesViewModel}">
+                <views:PesquisarRegistroManifestacoesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:NovaVersaoViewModel}">
+                <views:NovaVersaoView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SobreViewModel}">
+                <views:SobreView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ExportarOrdemServicoViewModel}">
+                <views:ExportarOrdemServicoView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:RenovarSessaoViewModel}">
+                <views:RenovarSessaoView />
+            </DataTemplate>
+            <Style x:Key="EstiloUserControlParametros1" TargetType="UserControl">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.ThemeBackground}" />
+                <Setter Property="Margin" Value="2" />
+            </Style>
+
+            <Style x:Name="gridHeaderSync" TargetType="syncfusion:GridHeaderCellControl">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent2}" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent3}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Name="sfGrid" TargetType="syncfusion:SfDataGrid">
+                <Setter Property="AllowDraggingColumns" Value="True" />
+                <Setter Property="AllowDraggingRows" Value="True" />
+                <Setter Property="RowDropIndicatorMode" Value="Line" />
+                <Setter Property="AllowFiltering" Value="True" />
+                <Setter Property="AllowDrop" Value="True" />
+                <Setter Property="AllowResizingColumns" Value="True" />
+                <Setter Property="AllowRowHoverHighlighting" Value="True" />
+                <Setter Property="AlternationCount" Value="2" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="ColumnSizer" Value="Auto" />
+                <Setter Property="RowHoverHighlightingBrush" Value="{DynamicResource MahApps.Brushes.Gray8}" />
+                <Setter Property="RowSelectionBrush" Value="{DynamicResource MahApps.Brushes.Gray5}" />
+                <Setter Property="ScrollMode" Value="Async" />
+                <Setter Property="SelectionUnit" Value="Row" />
+            </Style>
+
+            <Style
+                x:Name="EstiloDataGridColumnHeader1"
+                BasedOn="{StaticResource MahApps.Styles.DataGridColumnHeader}"
+                TargetType="{x:Type DataGridColumnHeader}">
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent4}" />
+                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent2}" />
+                        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style
+                x:Name="MenuItemFundoEstilo1"
+                BasedOn="{StaticResource MahApps.Styles.MenuItem}"
+                TargetType="{x:Type MenuItem}">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent3}" />
+                        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style
+                x:Name="EstiloDataGrid1"
+                BasedOn="{StaticResource MahApps.Styles.DataGrid}"
+                TargetType="{x:Type DataGrid}">
+                <Setter Property="CanUserAddRows" Value="False" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="EnableColumnVirtualization" Value="True" />
+                <Setter Property="EnableRowVirtualization" Value="True" />
+                <Setter Property="GridLinesVisibility" Value="All" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="Language" Value="pt-BR" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderBrush" Value="LightGray" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

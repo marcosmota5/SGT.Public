@@ -1,0 +1,798 @@
+﻿<UserControl
+    x:Class="SGT.Views.ControleItensView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    MinWidth="620"
+    Margin="2,0,2,10"
+    d:DesignHeight="398"
+    d:DesignWidth="728"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    BorderBrush="{StaticResource MahApps.Brushes.Accent}"
+    BorderThickness="1"
+    Unloaded="UserControl_Unloaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:StringToUpperConverter x:Key="StringToUpperConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{StaticResource MahApps.Brushes.Accent}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Column="0"
+                d:Content="Nome"
+                Content="{Binding Name, Converter={StaticResource StringToUpperConverter}}"
+                Foreground="White" />
+            <Button
+                Grid.Column="1"
+                Padding="0"
+                Command="{Binding ComandoFechar}">
+                <iconPacks:PackIconMaterial
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    Kind="Close" />
+                <Button.Style>
+                    <Style BasedOn="{StaticResource MahApps.Styles.Button.Flat}" TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Red" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1" IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
+            <Grid x:Name="grpControleItem" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="rowControleItem0" Height="1.5*" />
+                    <RowDefinition x:Name="rowControleItem1" Height="3.5*" />
+                    <RowDefinition x:Name="rowControleItem2" Height="1.5*" />
+                    <RowDefinition x:Name="rowControleItem3" Height="0.7*" />
+                </Grid.RowDefinitions>
+
+                <GroupBox
+                    x:Name="grpControles"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="2"
+                    Header="Geral">
+                    <AdornerDecorator x:Name="adControles">
+                        <Grid x:Name="grdControles">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1.4*" />
+                                <ColumnDefinition Width="1.8*" />
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox
+                                x:Name="cboTipoItem"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Tipo do item"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaTiposItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectionChanged="cboTipoItem_SelectionChanged">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.TipoItem"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                            <ComboBox
+                                x:Name="cboStatus"
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Status"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.Status"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                            <ComboBox
+                                x:Name="cboStatusAprovacao"
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Status da aprovação"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaStatusAprovacao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.StatusAprovacao"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                            <ComboBox
+                                x:Name="cboJustificativaAprovacao"
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Justificativa da aprovação"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaJustificativasAprovacao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.JustificativaAprovacao"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                        </Grid>
+                    </AdornerDecorator>
+                </GroupBox>
+
+                <GroupBox
+                    x:Name="grpItem"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="2"
+                    Header="Dados do item">
+                    <AdornerDecorator x:Name="adItem">
+                        <Grid x:Name="grdItem">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="rowItem0" Height="1*" />
+                                <RowDefinition x:Name="rowItem1" Height="1*" />
+                                <RowDefinition x:Name="rowItem2" Height="1*" />
+                                <RowDefinition x:Name="rowItem3" Height="1*" />
+                            </Grid.RowDefinitions>
+                            <ComboBox
+                                x:Name="cboFornecedor"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Fornecedor"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaFornecedores, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="Fornecedor"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding ComandoRetornaItens}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                            <Grid
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="5*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="cboCodigo"
+                                    Margin="0,0,2,0"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=Text.Length, Mode=OneWay}"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Código"
+                                    DisplayMemberPath="CodigoItem"
+                                    IsEditable="True"
+                                    ItemsSource="{Binding ListaPecas, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    MaxDropDownHeight="125"
+                                    SelectedValuePath="CodigoItem"
+                                    Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                                    Text="{Binding ItemProposta.CodigoItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                                    Kind="ArchiveRefresh"
+                                    ToolTip="Clique aqui para carregar os dados mais atuais da peça selecionada">
+                                    <iconPacks:PackIconMaterial.Style>
+                                        <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                                            <Setter Property="Foreground" Value="Gray" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </iconPacks:PackIconMaterial.Style>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                                            <i:InvokeCommandAction Command="{Binding ComandoCarregaPeca}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </iconPacks:PackIconMaterial>
+                            </Grid>
+                            <TextBox
+                                x:Name="txtDescricao"
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Grid.ColumnSpan="3"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Descrição"
+                                mah:TextBoxHelper.WatermarkAlignment="Right"
+                                AcceptsReturn="True"
+                                TextChanged="TextBox_TextChanged">
+                                <TextBox.Text>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.DescricaoItem"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                            <mah:NumericUpDown
+                                x:Name="nudQuantidade"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Quantidade"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="N2"
+                                SwitchUpDownButtons="False">
+                                <mah:NumericUpDown.Value>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="QuantidadeItem"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </mah:NumericUpDown.Value>
+                            </mah:NumericUpDown>
+                            <mah:NumericUpDown
+                                x:Name="nudPrecoUnitario"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Preço unitário"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="C"
+                                SwitchUpDownButtons="False">
+                                <mah:NumericUpDown.Value>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.PrecoUnitarioInicialItem"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </mah:NumericUpDown.Value>
+                            </mah:NumericUpDown>
+                            <Grid
+                                x:Name="grdPercentuais"
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <mah:NumericUpDown
+                                    x:Name="nudIPI"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Stretch"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="IPI"
+                                    mah:TextBoxHelper.WatermarkAlignment="Left"
+                                    Culture="pt-BR"
+                                    DecimalPointCorrection="Currency"
+                                    HideUpDownButtons="True"
+                                    InterceptArrowKeys="False"
+                                    InterceptManualEnter="True"
+                                    InterceptMouseWheel="False"
+                                    NumericInputMode="Decimal"
+                                    StringFormat="P2"
+                                    SwitchUpDownButtons="False"
+                                    Value="{Binding ItemProposta.PercentualIpiItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <mah:NumericUpDown
+                                    x:Name="nudICMS"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Stretch"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="ICMS"
+                                    mah:TextBoxHelper.WatermarkAlignment="Left"
+                                    Culture="pt-BR"
+                                    DecimalPointCorrection="Currency"
+                                    HideUpDownButtons="True"
+                                    InterceptArrowKeys="False"
+                                    InterceptManualEnter="True"
+                                    InterceptMouseWheel="False"
+                                    NumericInputMode="Decimal"
+                                    StringFormat="P2"
+                                    SwitchUpDownButtons="False"
+                                    Value="{Binding ItemProposta.PercentualIcmsItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    x:Name="txtNCM"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="NCM"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right"
+                                    MaxLength="30"
+                                    Text="{Binding ItemProposta.NcmItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <mah:NumericUpDown
+                                    x:Name="nudMVA"
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Stretch"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="MVA"
+                                    mah:TextBoxHelper.WatermarkAlignment="Left"
+                                    Culture="pt-BR"
+                                    DecimalPointCorrection="Currency"
+                                    HideUpDownButtons="True"
+                                    InterceptArrowKeys="False"
+                                    InterceptManualEnter="True"
+                                    InterceptMouseWheel="False"
+                                    NumericInputMode="Decimal"
+                                    StringFormat="N0"
+                                    SwitchUpDownButtons="False"
+                                    Value="{Binding ItemProposta.MvaItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
+
+                            <mah:NumericUpDown
+                                x:Name="nudValorST"
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Valor ST"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="C"
+                                SwitchUpDownButtons="False"
+                                Value="{Binding ItemProposta.ValorStItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <mah:NumericUpDown
+                                x:Name="nudPrecoTotal"
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Preço total"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="C"
+                                SwitchUpDownButtons="False"
+                                Value="{Binding ItemProposta.ValorTotalInicialItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <mah:NumericUpDown
+                                x:Name="nudFreteUnitario"
+                                Grid.Row="2"
+                                Grid.Column="2"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Frete unitário"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="C"
+                                SwitchUpDownButtons="False"
+                                Value="{Binding ItemProposta.FreteUnitarioItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <mah:NumericUpDown
+                                x:Name="nudDescontoCusto"
+                                Grid.Row="2"
+                                Grid.Column="3"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Desc. custo"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="P2"
+                                SwitchUpDownButtons="False"
+                                Value="{Binding ItemProposta.DescontoInicialItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <mah:NumericUpDown
+                                x:Name="nudDescontoFinal"
+                                Grid.Row="2"
+                                Grid.Column="4"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Desc. final"
+                                mah:TextBoxHelper.WatermarkAlignment="Left"
+                                Culture="pt-BR"
+                                DecimalPointCorrection="Currency"
+                                HideUpDownButtons="True"
+                                InterceptArrowKeys="False"
+                                InterceptManualEnter="True"
+                                InterceptMouseWheel="False"
+                                NumericInputMode="Decimal"
+                                StringFormat="P2"
+                                SwitchUpDownButtons="False"
+                                Value="{Binding ItemProposta.DescontoFinalItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <ComboBox
+                                x:Name="cboTipoSubstituicaoTributaria"
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Tipo de sub. trib."
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaTiposSubstituicaoTributaria, Mode=TwoWay}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.TipoSubstituicaoTributaria"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                            <ComboBox
+                                x:Name="cboOrigem"
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Origem"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaOrigens, Mode=TwoWay}">
+                                <ComboBox.SelectedItem>
+                                    <Binding
+                                        Mode="TwoWay"
+                                        Path="ItemProposta.Origem"
+                                        UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <regras:RegraCampoVazio />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </ComboBox.SelectedItem>
+                            </ComboBox>
+                            <Grid
+                                x:Name="grdPrazos"
+                                Grid.Row="3"
+                                Grid.Column="2"
+                                Grid.ColumnSpan="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="txtPrazoInicial"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Prazo inicial"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right">
+                                    <TextBox.Text>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="ItemProposta.PrazoInicialItem"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                                <TextBox
+                                    x:Name="txtPrazoFinal"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Prazo final"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right"
+                                    Text="{Binding ItemProposta.PrazoFinalItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
+                        </Grid>
+                    </AdornerDecorator>
+                </GroupBox>
+
+                <GroupBox
+                    x:Name="grpOutros"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Margin="2"
+                    Header="Outros">
+                    <AdornerDecorator x:Name="adOutros">
+                        <Grid x:Name="grdOutros">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+
+                            <ComboBox
+                                x:Name="cboConjunto"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Conjunto"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaConjuntos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectedItem="{Binding Conjunto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <ComboBox
+                                x:Name="cboEspecificacao"
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.IsWaitingForData="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Especificação"
+                                DisplayMemberPath="Nome"
+                                ItemsSource="{Binding ListaEspecificacoesView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectedItem="{Binding ItemProposta.Especificacao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                x:Name="txtComentarios"
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                mah:TextBoxHelper.Watermark="Comentários"
+                                mah:TextBoxHelper.WatermarkAlignment="Right"
+                                AcceptsReturn="True"
+                                Text="{Binding ItemProposta.ComentariosItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                TextChanged="TextBox_TextChanged" />
+                        </Grid>
+                    </AdornerDecorator>
+                </GroupBox>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        x:Name="btnCancelar"
+                        Grid.Column="1"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        Command="{Binding ComandoFechar}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <iconPacks:PackIconMaterial
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Foreground="Red"
+                                Kind="Cancel" />
+                            <TextBlock Grid.Column="1">Cancelar</TextBlock>
+                        </Grid>
+                    </Button>
+                    <mah:Badged
+                        x:Name="bdgSalvar"
+                        Grid.Column="2"
+                        Margin="2"
+                        Badge=""
+                        BadgeBackground="Red">
+                        <Button
+                            x:Name="btnSalvar"
+                            VerticalAlignment="Center"
+                            Click="btnSalvar_Click"
+                            Command="{Binding ComandoSalvar}"
+                            ToolTip="Lembre-se de verificar o preço e prazo atualizado do fornecedor, principalmente se você alterou a quantidade de itens">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Foreground="Gray"
+                                    Kind="ContentSave" />
+                                <TextBlock Grid.Column="1">Salvar</TextBlock>
+                            </Grid>
+                        </Button>
+                    </mah:Badged>
+                </Grid>
+            </Grid>
+            <StatusBar
+                Name="stbStatus"
+                Grid.Row="1"
+                Background="LightGray">
+                <TextBlock
+                    x:Name="tblStatus"
+                    Foreground="DarkSlateGray"
+                    Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </Grid>
+        <Rectangle
+            Grid.RowSpan="2"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Grid
+            Grid.RowSpan="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

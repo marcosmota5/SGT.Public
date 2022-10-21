@@ -1,0 +1,226 @@
+﻿<UserControl
+    x:Class="SGT.Views.AlterarSenhaComAtualView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperclasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    Margin="2"
+    d:Background="White"
+    d:DesignWidth="240"
+    d:Height="300"
+    mah:DialogParticipation.Register="{Binding}"
+    Loaded="UserControl_Loaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="11*" />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <Menu x:Name="mnuMenuPrincipal" Grid.Row="0">
+            <MenuItem
+                x:Name="mniSalvar"
+                Click="mniSalvar_Click"
+                Command="{Binding ComandoSalvar}"
+                Header="Salvar"
+                IsEnabled="{Binding PermiteSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="SteelBlue"
+                        Kind="ContentSave" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCancelar"
+                Command="{Binding ComandoCancelar}"
+                Header="Cancelar"
+                IsEnabled="{Binding PermiteCancelar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding Path=CancelarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="IndianRed"
+                        Kind="Cancel" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </Menu>
+        <StackPanel Grid.Row="1" IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <mah:Badged
+                x:Name="bdgSenhaAtual"
+                Margin="2"
+                Badge=""
+                BadgeBackground="Red"
+                BadgePlacementMode="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Key" />
+                    <PasswordBox
+                        x:Name="pboSenhaAtual"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Senha atual"
+                        MaxLength="32"
+                        PasswordChanged="pboSenhaAtual_PasswordChanged"
+                        Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}" />
+                </Grid>
+
+            </mah:Badged>
+            <mah:Badged
+                x:Name="bdgNovaSenha"
+                Margin="2"
+                Badge=""
+                BadgeBackground="Red"
+                BadgePlacementMode="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Key" />
+                    <PasswordBox
+                        x:Name="pboNovaSenha"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Nova senha"
+                        MaxLength="32"
+                        PasswordChanged="pboNovaSenha_PasswordChanged"
+                        Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}" />
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <Label
+                            x:Name="lblTamanhoNovaSenha"
+                            Margin="0"
+                            Content="Pelo menos 8 caracteres"
+                            FontSize="8"
+                            Foreground="Red"
+                            Visibility="{Binding Path=TamanhoNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                        <Label
+                            x:Name="lblMaiusculasNovaSenha"
+                            Margin="0,-5,0,0"
+                            Content="Pelo menos 1 letra maiúscula"
+                            FontSize="8"
+                            Foreground="Red"
+                            Visibility="{Binding Path=MaiusculasNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                        <Label
+                            x:Name="lblMinusculasNovaSenha"
+                            Margin="0,-5,0,0"
+                            Content="Pelo menos 1 letra minúscula"
+                            FontSize="8"
+                            Foreground="Red"
+                            Visibility="{Binding Path=MinusculasNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                        <Label
+                            x:Name="lblNumeroNovaSenha"
+                            Margin="0,-5,0,0"
+                            Content="Pelo menos 1 número"
+                            FontSize="8"
+                            Foreground="Red"
+                            Visibility="{Binding Path=NumerosNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                        <Label
+                            x:Name="lblCaractereEspecialNovaSenha"
+                            Margin="0,-5,0,0"
+                            Content="Pelo menos 1 caractere especial"
+                            FontSize="8"
+                            Foreground="Red"
+                            Visibility="{Binding Path=CaractereEspecialNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </Grid>
+            </mah:Badged>
+            <mah:Badged
+                x:Name="bdgConfirmacaoSenha"
+                Margin="2"
+                Badge=""
+                BadgeBackground="Red"
+                BadgePlacementMode="Top">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Key" />
+                    <PasswordBox
+                        x:Name="pboSenhaConfirmacao"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Confirmação"
+                        MaxLength="32"
+                        PasswordChanged="pboSenhaConfirmacao_PasswordChanged"
+                        Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}" />
+                </Grid>
+            </mah:Badged>
+        </StackPanel>
+        <Grid x:Name="grdStatus" Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                Grid.Row="0"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}"
+                Value="{Binding ValorProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                x:Name="tblStatus"
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                d:Text="0%"
+                FontSize="12"
+                Foreground="Black"
+                Text="{Binding TextoProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+            <StatusBar Grid.Row="1" Background="LightGray">
+                <TextBlock
+                    x:Name="tblStatusBar"
+                    Foreground="DarkSlateGray"
+                    Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </Grid>
+    </Grid>
+</UserControl>

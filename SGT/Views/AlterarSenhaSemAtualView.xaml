@@ -1,0 +1,206 @@
+﻿<UserControl
+    x:Class="SGT.Views.AlterarSenhaSemAtualView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    d:DesignHeight="240"
+    d:DesignWidth="280"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <StackPanel
+        x:Name="stpAlterarASenha"
+        Grid.Row="0"
+        Margin="5,0"
+        VerticalAlignment="Center"
+        Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+        IsEnabled="{Binding ControleHabilitado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+        Opacity="1"
+        Orientation="Vertical">
+        <Grid x:Name="grdAlterarASenha" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <iconPacks:PackIconMaterial
+                x:Name="icoVoltarAlterarASenha"
+                Grid.Column="0"
+                Width="18"
+                Height="18"
+                VerticalAlignment="Center"
+                Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                Kind="ArrowLeftCircle">
+                <iconPacks:PackIconMaterial.Style>
+                    <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                        <Setter Property="Foreground" Value="Gray" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </iconPacks:PackIconMaterial.Style>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding ComandoVoltar}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </iconPacks:PackIconMaterial>
+            <Label
+                x:Name="lblTituloAlterarASenha"
+                Grid.Column="1"
+                Margin="1,0,0,0"
+                HorizontalAlignment="Center"
+                FontSize="16"
+                FontWeight="Bold">
+                <TextBlock
+                    x:Name="tblTituloAlterarASenha"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap">
+                    Alterar a senha
+                </TextBlock>
+            </Label>
+        </Grid>
+        <Grid Margin="10,0,10,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition Width="96*" />
+                <ColumnDefinition Width="17*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Key" />
+            <mah:Badged
+                x:Name="bdgNovaSenha"
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Badge=""
+                BadgeBackground="Red"
+                BadgePlacementMode="Top">
+                <PasswordBox
+                    x:Name="pboNovaSenha"
+                    mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                    mah:TextBoxHelper.IsWaitingForData="True"
+                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                    mah:TextBoxHelper.Watermark="Nova senha"
+                    MaxLength="32"
+                    PasswordChanged="NovaSenha_PasswordChanged"
+                    Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}" />
+            </mah:Badged>
+            <StackPanel
+                Grid.Row="1"
+                Grid.Column="1"
+                Grid.ColumnSpan="2">
+                <Label
+                    x:Name="lblTamanhoNovaSenha"
+                    Margin="0"
+                    Content="Pelo menos 8 caracteres"
+                    FontSize="8"
+                    Foreground="Red"
+                    Visibility="{Binding Path=TamanhoNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                <Label
+                    x:Name="lblMaiusculasNovaSenha"
+                    Margin="0,-5,0,0"
+                    Content="Pelo menos 1 letra maiúscula"
+                    FontSize="8"
+                    Foreground="Red"
+                    Visibility="{Binding Path=MaiusculasNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                <Label
+                    x:Name="lblMinusculasNovaSenha"
+                    Margin="0,-5,0,0"
+                    Content="Pelo menos 1 letra minúscula"
+                    FontSize="8"
+                    Foreground="Red"
+                    Visibility="{Binding Path=MinusculasNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                <Label
+                    x:Name="lblNumeroNovaSenha"
+                    Margin="0,-5,0,0"
+                    Content="Pelo menos 1 número"
+                    FontSize="8"
+                    Foreground="Red"
+                    Visibility="{Binding Path=NumerosNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                <Label
+                    x:Name="lblCaractereEspecialNovaSenha"
+                    Margin="0,-5,0,0"
+                    Content="Pelo menos 1 caractere especial"
+                    FontSize="8"
+                    Foreground="Red"
+                    Visibility="{Binding Path=CaractereEspecialNovaSenhaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+
+            </StackPanel>
+        </Grid>
+        <Grid Margin="10,10,10,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Row="0"
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Key" />
+            <mah:Badged
+                x:Name="bdgConfirmarNovaSenha"
+                Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Badge=""
+                BadgeBackground="Red"
+                BadgePlacementMode="Top">
+                <PasswordBox
+                    x:Name="pboConfirmarNovaSenha"
+                    mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                    mah:TextBoxHelper.IsWaitingForData="True"
+                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                    mah:TextBoxHelper.Watermark="Confirmar nova senha"
+                    MaxLength="32"
+                    PasswordChanged="ConfirmacaoSenha_PasswordChanged"
+                    Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}">
+                    <PasswordBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding Path=ComandoConfirmarAlteracao}" />
+                    </PasswordBox.InputBindings>
+                </PasswordBox>
+            </mah:Badged>
+        </Grid>
+        <Button
+            x:Name="btnAlterarASenha"
+            Height="48"
+            Margin="10,20"
+            Click="btnAlterarASenha_Click"
+            Command="{Binding ComandoConfirmarAlteracao}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <iconPacks:PackIconMaterial
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                    Kind="KeyChange" />
+                <TextBlock Grid.Column="1" FontSize="16">Alterar senha</TextBlock>
+            </Grid>
+        </Button>
+
+
+
+    </StackPanel>
+</UserControl>

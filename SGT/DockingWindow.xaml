@@ -1,0 +1,54 @@
+﻿<mah:MetroWindow
+    x:Class="SGT.DockingWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ct="clr-namespace:ChromeTabs;assembly=ChromeTabs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SGT"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    xmlns:views="clr-namespace:SGT.Views"
+    Title="{Binding ElementName=ContentControl, Path=Content.Name}"
+    Width="1280"
+    Height="720"
+    Loaded="Window_Loaded"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:PropostaViewModel}">
+            <views:PropostaView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:PesquisarPropostaViewModel}">
+            <views:PesquisarPropostaView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:OrdemServicoViewModel}">
+            <views:OrdemServicoView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:PesquisarOrdemServicoViewModel}">
+            <views:PesquisarOrdemServicoView />
+        </DataTemplate>
+        <Storyboard x:Key="FadeInContentAnim">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentControl" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{x:Static Visibility.Visible}" />
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+    <Grid x:Name="grdPrincipal">
+        <ContentControl
+            x:Name="ContentControl"
+            Content="{Binding}"
+            Visibility="Collapsed" />
+        <Grid x:Name="grdFundo" Visibility="Collapsed">
+            <Grid.Background>
+                <SolidColorBrush Opacity="0.4" Color="Black" />
+            </Grid.Background>
+            <Label
+                x:Name="lblTextoFundo"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                d:Content="Operação em outra janela"
+                Background="Black"
+                Foreground="White" />
+        </Grid>
+    </Grid>
+</mah:MetroWindow>

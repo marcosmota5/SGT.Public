@@ -1,0 +1,465 @@
+﻿<UserControl
+    x:Class="SGT.Views.ImportarPecasView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperclasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    MinWidth="620"
+    MinHeight="460"
+    MaxHeight="460"
+    Margin="2,0,2,10"
+    d:DesignWidth="860"
+    BorderBrush="{StaticResource MahApps.Brushes.Accent}"
+    BorderThickness="1"
+    Unloaded="UserControl_Unloaded"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <Style x:Key="GridViewColumnHeaderStyle1" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Accent}" />
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.ThemeForeground}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="OverridesDefaultStyle" Value="False" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{StaticResource MahApps.Brushes.Accent}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Column="0"
+                d:Content="Nome"
+                Content="{Binding Name}"
+                Foreground="White" />
+            <Button
+                Grid.Column="1"
+                Padding="0"
+                Command="{Binding ComandoFechar}">
+                <iconPacks:PackIconMaterial
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    Kind="Close" />
+                <Button.Style>
+                    <Style BasedOn="{StaticResource MahApps.Styles.Button.Flat}" TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Red" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+        <Grid
+            x:Name="groImportarPecas"
+            Grid.Row="1"
+            IsEnabled="{Binding ControlesHabilitadosCarregamento, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="rowImportarPecas0" Height="11*" />
+                <RowDefinition x:Name="rowImportarPecas1" Height="1.2*" />
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.2*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <GroupBox
+                    x:Name="grpPastasEmail"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="2"
+                    Header="Pastas de e-mail">
+                    <AdornerDecorator x:Name="adPastasEmail">
+                        <TreeView
+                            x:Name="tvwPastasEmail"
+                            IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            ItemsSource="{Binding Path=EnumerablePastasEmail}"
+                            ToolTip="Selecione uma pasta de e-mail e clique em Atualizar">
+                            <i:Interaction.Behaviors>
+                                <behaviors:TreeViewSelectionBehavior SelectedItem="{Binding PastaSelecionada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </i:Interaction.Behaviors>
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type helperclasses:PastaEmail}" ItemsSource="{Binding Path=ListaPastas}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Path=Nome}" />
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
+                    </AdornerDecorator>
+                </GroupBox>
+
+                <GroupBox
+                    x:Name="grpEmails"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="2"
+                    Header="Emails">
+                    <AdornerDecorator x:Name="adEmails">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="3*" />
+                                <RowDefinition Height="16*" />
+                                <RowDefinition Height="3*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="108" />
+                                    <ColumnDefinition Width="85" />
+                                </Grid.ColumnDefinitions>
+                                <DatePicker
+                                    x:Name="datDe"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="De"
+                                    DisplayDateEnd="{Binding DataAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsTodayHighlighted="True"
+                                    SelectedDate="{Binding DataDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedDateFormat="Short">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoVerificaDataDe}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </DatePicker>
+                                <DatePicker
+                                    x:Name="datAte"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Até"
+                                    DisplayDateStart="{Binding DataDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsTodayHighlighted="True"
+                                    SelectedDate="{Binding DataAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedDateFormat="Short">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAte}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </DatePicker>
+                                <ComboBox
+                                    x:Name="cboFornecedor"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Fornecedor"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaFornecedores, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Fornecedor da cotação">
+                                    <ComboBox.SelectedItem>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="Fornecedor"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.SelectedItem>
+                                </ComboBox>
+                                <Button
+                                    x:Name="btnFiltrar"
+                                    Grid.Column="3"
+                                    Height="40"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    Command="{Binding Path=ComandoFiltrar}"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Clique aqui para retornar os e-mails de acordo com os parâmetros ao lado">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="24" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                            Kind="Refresh" />
+                                        <TextBlock Grid.Column="1">Atualizar</TextBlock>
+                                    </Grid>
+
+                                </Button>
+                            </Grid>
+                            <DataGrid
+                                Grid.Row="1"
+                                IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsReadOnly="False"
+                                ItemsSource="{Binding ListaItensEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectedItem="{Binding ItemEmailSelecionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.Resources>
+                                    <ContextMenu x:Key="ctmOpcoesImportacao" DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+                                        <MenuItem x:Name="mniImportar" Header="Importar">
+                                            <MenuItem.Icon>
+                                                <iconPacks:PackIconMaterial
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="SteelBlue"
+                                                    Kind="Import" />
+                                            </MenuItem.Icon>
+                                            <MenuItem
+                                                x:Name="mniAdicionar"
+                                                Command="{Binding Path=ComandoImportarUnicoAdicionar}"
+                                                Header="Adicionar">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial
+                                                        Grid.Column="0"
+                                                        VerticalAlignment="Center"
+                                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                        Kind="Plus" />
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem
+                                                x:Name="mniSubstituir"
+                                                Command="{Binding Path=ComandoImportarUnicoSubstituir}"
+                                                Header="Substituir">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial
+                                                        Grid.Column="0"
+                                                        VerticalAlignment="Center"
+                                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                        Kind="Autorenew" />
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </DataGrid.Resources>
+                                <DataGrid.RowStyle>
+                                    <Style
+                                        x:Name="EstiloDataGridRow"
+                                        BasedOn="{StaticResource MahApps.Styles.DataGridRow}"
+                                        TargetType="DataGridRow">
+                                        <Setter Property="ContextMenu" Value="{StaticResource ctmOpcoesImportacao}" />
+                                        <Setter Property="ToolTip" Value="Clique com o botão direito para importar apenas essa cotação" />
+                                        <Setter Property="OverridesDefaultStyle" Value="False" />
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="25">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox
+                                                    x:Name="cbCol"
+                                                    HorizontalAlignment="Center"
+                                                    IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn
+                                        x:Name="dgtcDataRecebimento"
+                                        Binding="{Binding MailItem.ReceivedTime, StringFormat=\{0:dd/MM/yyyy HH:mm\}}"
+                                        Header="Data de recebimento"
+                                        IsReadOnly="True" />
+                                    <DataGridTextColumn
+                                        x:Name="dgtcRemetente"
+                                        Binding="{Binding MailItem.SenderEmailAddress}"
+                                        Header="Remetente"
+                                        IsReadOnly="True" />
+                                    <DataGridTextColumn
+                                        x:Name="dgtcAssunto"
+                                        Binding="{Binding MailItem.Subject}"
+                                        Header="Assunto"
+                                        IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <Grid x:Name="grdImportar" Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="Importar cotações selecionadas:"
+                                    FontSize="14" />
+                                <ComboBox
+                                    x:Name="cboTipoImportacao"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Opção"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaTipoImportacao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Opção de importação das cotações selecionadas &#x0a;&#x0a;Substituir: Limpa todos os itens que já existem na proposta e adiciona todos os itens das cotações selecionadas&#x0a;Adicionar: Adiciona todos os itens das cotações selecionadas sem limpar itens já existentes na proposta">
+                                    <ComboBox.SelectedItem>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="TipoImportacao"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.SelectedItem>
+                                </ComboBox>
+                                <mah:Badged
+                                    x:Name="bdgImportar"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Badge="{Binding Path=TextoBadgeImportar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    BadgeBackground="Red">
+                                    <Button
+                                        x:Name="btnImportar"
+                                        Grid.Column="2"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        Command="{Binding Path=ComandoImportarMultiplos}"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Clique aqui para importar as cotações selecionadas acima"
+                                        Visibility="{Binding Path=ImportarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="Import" />
+                                            <TextBlock Grid.Column="1">Importar</TextBlock>
+                                        </Grid>
+                                    </Button>
+                                </mah:Badged>
+                                <Button
+                                    x:Name="btnCancelar"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    d:Visibility="Collapsed"
+                                    Command="{Binding Path=ComandoCancelar}"
+                                    ToolTip="Clique aqui para cancelar o processo de importação"
+                                    Visibility="{Binding Path=CancelarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="24" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="Red"
+                                            Kind="Cancel" />
+                                        <TextBlock Grid.Column="1">Cancelar</TextBlock>
+                                    </Grid>
+                                </Button>
+
+                            </Grid>
+
+                        </Grid>
+
+                    </AdornerDecorator>
+                </GroupBox>
+
+            </Grid>
+
+            <Grid
+                x:Name="grdStatus"
+                Grid.Row="1"
+                Margin="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1.5*" />
+                </Grid.RowDefinitions>
+
+                <mah:MetroProgressBar
+                    x:Name="pgbProgresso"
+                    Grid.Row="0"
+                    IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Maximum="100"
+                    Minimum="0"
+                    Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}"
+                    Value="{Binding ValorProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock
+                    x:Name="tblStatus"
+                    Grid.Row="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    d:Text="0%"
+                    FontSize="12"
+                    Foreground="Black"
+                    Text="{Binding TextoProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+
+                <StatusBar Grid.Row="1" Background="LightGray">
+                    <TextBlock
+                        x:Name="tblStatusBar"
+                        Foreground="DarkSlateGray"
+                        Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StatusBar>
+
+            </Grid>
+
+        </Grid>
+        <Rectangle
+            Grid.RowSpan="2"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Grid
+            Grid.RowSpan="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

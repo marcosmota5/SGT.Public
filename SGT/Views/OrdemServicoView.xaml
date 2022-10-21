@@ -1,0 +1,1640 @@
+﻿<UserControl
+    x:Class="SGT.Views.OrdemServicoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:proxies="clr-namespace:SGT.Proxies"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    x:Name="ctl"
+    d:DesignHeight="720"
+    d:DesignWidth="1280"
+    mah:DialogParticipation.Register="{Binding}"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    Loaded="UserControl_Loaded"
+    Unloaded="ctl_Unloaded"
+    mc:Ignorable="d">
+    <Grid Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="28" />
+        </Grid.RowDefinitions>
+        <!--  Menu contendo os controles principais  -->
+        <Menu x:Name="mnuMenuPrincipal" Grid.Row="0">
+            <MenuItem
+                x:Name="mniSalvar"
+                d:Header="Salvar e avançar"
+                Click="mniSalvar_Click"
+                Command="{Binding ComandoSalvar}"
+                Header="{Binding TextoSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                IsEnabled="{Binding PermiteSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <Grid>
+                        <iconPacks:PackIconMaterial
+                            VerticalAlignment="Center"
+                            Foreground="SteelBlue"
+                            Kind="ContentSave" />
+                        <iconPacks:PackIconMaterial
+                            Width="10"
+                            Height="10"
+                            Margin="10,0,0,-3"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Foreground="White"
+                            Kind="Circle" />
+                        <iconPacks:PackIconMaterial
+                            Width="10"
+                            Height="10"
+                            Margin="10,0,0,-3"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            d:Kind="ChevronRightCircle"
+                            Foreground="DarkGreen"
+                            Kind="{Binding IconeSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniEditar"
+                Command="{Binding ComandoEditar}"
+                Header="Editar"
+                IsEnabled="{Binding PermiteEditar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="LightSalmon"
+                        Kind="Pencil" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniDeletar"
+                Command="{Binding ComandoDeletar}"
+                Header="Deletar"
+                IsEnabled="{Binding PermiteDeletar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{c:Binding Path=DeletarVisivel,
+                                       Mode=TwoWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Delete" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCopiarOrdemServico"
+                Header="Copiar"
+                IsEnabled="{c:Binding 'EdicaoEhEnterprise and PermiteCopiar',
+                                      Mode=OneWay,
+                                      UpdateSourceTrigger=PropertyChanged}"
+                ToolTip="Clique aqui para copiar esse registro para um novo de acordo com alguns parâmetros. Disponível apenas na versão Enterprise"
+                ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        Foreground="DarkSlateGray"
+                        Kind="ContentCopy" />
+                </MenuItem.Icon>
+                <MenuItem
+                    x:Name="mniParaOrdemServico"
+                    Command="{Binding ComandoCopiarOrdemServicoNovaOrdemServico}"
+                    Header="Nova ordem de serviço" />
+                <MenuItem
+                    x:Name="mniParaProposta"
+                    Command="{Binding ComandoCopiarOrdemServicoNovaProposta}"
+                    Header="Nova proposta" />
+            </MenuItem>
+            <MenuItem
+                x:Name="mniVisualizarOrdemServico"
+                Header="Visualizar"
+                IsEnabled="{Binding PermiteVisualizar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        Foreground="DarkCyan"
+                        Kind="FilePdfBox" />
+                </MenuItem.Icon>
+                <MenuItem
+                    x:Name="mniVisualizarOSAtual"
+                    Command="{Binding ComandoVisualizarOrdemServicoAtual}"
+                    Header="OS atual" />
+                <MenuItem
+                    x:Name="mniVisualizarOSPrimaria"
+                    Command="{Binding ComandoVisualizarOrdemServicoPrimaria}"
+                    Header="OS primária" />
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCancelarEdicao"
+                Command="{Binding ComandoCancelarEdicao}"
+                Header="Cancelar edição"
+                IsEnabled="{Binding PermiteCancelarEdicao, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{c:Binding Path=CancelarEdicaoVisivel,
+                                       Mode=TwoWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="IndianRed"
+                        Kind="PencilOff" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCancelar"
+                Command="{Binding ComandoCancelar}"
+                Header="Cancelar"
+                IsEnabled="{Binding PermiteCancelar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{c:Binding Path=CancelarVisivel,
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="IndianRed"
+                        Kind="Cancel" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </Menu>
+        <TabControl
+            x:Name="tabOrdemServicos"
+            Grid.Row="1"
+            mah:HeaderedControlHelper.HeaderFontSize="16"
+            mah:TabControlHelper.Underlined="TabPanel"
+            SelectedIndex="{c:Binding '(EhConstrutor == 1 ? 0 : (OrdemServico.EtapasConcluidas - 1))',
+                                      Mode=OneWay,
+                                      UpdateSourceTrigger=PropertyChanged}"
+            Style="{DynamicResource MahApps.Styles.TabControl.Animated}">
+            <mah:MetroTabItem x:Name="tbiPagina1" Header="Passo 1">
+                <Grid
+                    Height="380"
+                    VerticalAlignment="Top"
+                    IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" MaxHeight="80" />
+                        <RowDefinition Height="1*" MaxHeight="80" />
+                        <RowDefinition Height="2*" MaxHeight="130" />
+                    </Grid.RowDefinitions>
+                    <GroupBox
+                        x:Name="grpOrdemServico"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="2"
+                        Header="Ordem de serviço">
+                        <AdornerDecorator x:Name="adOrdemServico">
+                            <Grid x:Name="grdOrdemServico">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" MaxWidth="200" />
+                                    <ColumnDefinition Width="1*" MaxWidth="140" />
+                                    <ColumnDefinition Width="1*" MaxWidth="140" />
+                                    <ColumnDefinition Width="1*" MaxWidth="140" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="cboTipo"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Tipo"
+                                    DisplayMemberPath="Nome"
+                                    ItemsSource="{Binding ListaTiposOrdemServico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding OrdemServico.TipoOrdemServico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2">
+                                    <mah:NumericUpDown
+                                        x:Name="nudOrdemServicoAtual"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="Stretch"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="OS atual"
+                                        mah:TextBoxHelper.WatermarkAlignment="Left"
+                                        Culture="pt-BR"
+                                        DecimalPointCorrection="Currency"
+                                        HideUpDownButtons="True"
+                                        InterceptArrowKeys="False"
+                                        InterceptManualEnter="True"
+                                        InterceptMouseWheel="False"
+                                        NumericInputMode="Numbers"
+                                        SwitchUpDownButtons="False"
+                                        TextAlignment="Left">
+                                        <mah:NumericUpDown.Value>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServicoAtual"
+                                                UpdateSourceTrigger="LostFocus">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </mah:NumericUpDown.Value>
+                                    </mah:NumericUpDown>
+                                    <iconPacks:PackIconMaterial
+                                        Margin="5"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Foreground="Goldenrod"
+                                        Kind="Alert"
+                                        ToolTip="O arquivo da ordem de serviço informada não foi localizado no diretório de ordens de serviço digitalizadas. Lembre-se de digitalizar a ordem de serviço após a inserção"
+                                        ToolTipService.ShowOnDisabled="True"
+                                        Visibility="{c:Binding ArquivoOrdemServicoAtualInexistente,
+                                                               Mode=OneWay,
+                                                               UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2">
+                                    <mah:NumericUpDown
+                                        x:Name="nudOrdemServicoPrimaria"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="Stretch"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="OS primária"
+                                        mah:TextBoxHelper.WatermarkAlignment="Left"
+                                        Culture="pt-BR"
+                                        DecimalPointCorrection="Currency"
+                                        HideUpDownButtons="True"
+                                        InterceptArrowKeys="False"
+                                        InterceptManualEnter="True"
+                                        InterceptMouseWheel="False"
+                                        NumericInputMode="Numbers"
+                                        SwitchUpDownButtons="False"
+                                        TextAlignment="Left"
+                                        Value="{Binding OrdemServicoPrimaria, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                                        <!--<i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="LostFocus">
+                                                <i:InvokeCommandAction Command="{Binding ComandoVerificaOrdemServicoPrimaria}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>-->
+                                    </mah:NumericUpDown>
+                                    <iconPacks:PackIconMaterial
+                                        Margin="5"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Foreground="Goldenrod"
+                                        Kind="Alert"
+                                        ToolTip="O arquivo da ordem de serviço informada não foi localizado no diretório de ordens de serviço digitalizadas. Lembre-se de digitalizar a ordem de serviço após a inserção"
+                                        ToolTipService.ShowOnDisabled="True"
+                                        Visibility="{c:Binding ArquivoOrdemServicoPrimariaInexistente,
+                                                               Mode=OneWay,
+                                                               UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                                <ComboBox
+                                    x:Name="cboStatus"
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Status"
+                                    DisplayMemberPath="Nome"
+                                    ItemsSource="{Binding ListaStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding OrdemServico.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpChamado"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="2"
+                        Header="Chamado">
+                        <AdornerDecorator x:Name="adChamado">
+                            <Grid x:Name="grdChamado">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="140" />
+                                    <ColumnDefinition MaxWidth="160" />
+                                </Grid.ColumnDefinitions>
+                                <mah:NumericUpDown
+                                    x:Name="nudNumeroChamado"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Stretch"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Número"
+                                    mah:TextBoxHelper.WatermarkAlignment="Left"
+                                    Culture="pt-BR"
+                                    DecimalPointCorrection="Currency"
+                                    HideUpDownButtons="True"
+                                    InterceptArrowKeys="False"
+                                    InterceptManualEnter="True"
+                                    InterceptMouseWheel="False"
+                                    NumericInputMode="Numbers"
+                                    SwitchUpDownButtons="False"
+                                    TextAlignment="Left">
+                                    <mah:NumericUpDown.Value>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.NumeroChamado"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </mah:NumericUpDown.Value>
+                                </mah:NumericUpDown>
+                                <mah:DateTimePicker
+                                    x:Name="datDataChamado"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Data do chamado"
+                                    Culture="pt-BR"
+                                    IsTodayHighlighted="True"
+                                    SelectedDateFormat="Short"
+                                    SelectedTimeFormat="Short">
+                                    <mah:DateTimePicker.SelectedDateTime>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.DataChamado"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </mah:DateTimePicker.SelectedDateTime>
+                                </mah:DateTimePicker>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpCliente"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="2"
+                        Header="Cliente">
+                        <AdornerDecorator x:Name="adCliente">
+                            <Grid x:Name="grdCliente">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="cboCliente"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Cliente"
+                                    DisplayMemberPath="Nome"
+                                    ItemsSource="{Binding ListaClientes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Cliente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboPlanta"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Planta"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaPlantasView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Planta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboArea"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Área"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaAreasView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboFrota"
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Frota"
+                                    DisplayMemberPath="Nome"
+                                    IsEditable="True"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsSynchronizedWithCurrentItem="False"
+                                    IsTextSearchEnabled="True"
+                                    ItemsSource="{Binding ListaFrotasView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    MaxDropDownHeight="125"
+                                    SelectedValue="{Binding OrdemServico.Frota.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedValuePath="Id"
+                                    Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                                    TextSearch.TextPath="Nome">
+                                    <ComboBox.Text>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.Frota.Nome"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Text>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction Command="{Binding ComandoGetFrota}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ComboBox>
+                                <mah:DateTimePicker
+                                    x:Name="datDataAtendimento"
+                                    Grid.Row="0"
+                                    Grid.Column="4"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Data do atendimento"
+                                    Culture="pt-BR"
+                                    IsTodayHighlighted="True"
+                                    SelectedDateFormat="Short"
+                                    SelectedTimeFormat="Short">
+                                    <mah:DateTimePicker.SelectedDateTime>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.DataAtendimento"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </mah:DateTimePicker.SelectedDateTime>
+                                </mah:DateTimePicker>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpEquipamento"
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="2"
+                        Header="Equipamento">
+                        <AdornerDecorator x:Name="adEquipamento">
+                            <Grid x:Name="grdEquipamento">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <ComboBox
+                                    x:Name="cboSerie"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Série"
+                                    DisplayMemberPath="Nome"
+                                    IsEditable="True"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaSeriesView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    MaxDropDownHeight="125"
+                                    SelectedValue="{Binding OrdemServico.Serie.Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedValuePath="Id"
+                                    Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}">
+                                    <ComboBox.Text>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.Serie.Nome"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Text>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoGetSerie}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboFabricante"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Fabricante"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaFabricantes, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Fabricante, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboCategoria"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Categoria"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaCategorias, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Categoria, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboTipoEquipamento"
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Tipo"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ItemsSource="{Binding ListaTiposEquipamento, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding TipoEquipamento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboClasse"
+                                    Grid.Row="0"
+                                    Grid.Column="4"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Classe"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsSynchronizedWithCurrentItem="False"
+                                    ItemsSource="{Binding ListaClasses, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Classe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboModelo"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Modelo"
+                                    DisplayMemberPath="Nome"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsSynchronizedWithCurrentItem="False"
+                                    ItemsSource="{Binding ListaModelosView, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding Modelo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="cboAno"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=Text.Length, Mode=OneWay}"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Ano"
+                                    DisplayMemberPath="AnoValor"
+                                    IsEnabled="{Binding ClienteSelecionado, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsSynchronizedWithCurrentItem="False"
+                                    ItemsSource="{Binding ListaAnos, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding OrdemServico.Serie.Ano, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    x:Name="txtMastro"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Mastro"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right"
+                                    Text="{Binding OrdemServico.Mastro, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    x:Name="txtNumeroFalha"
+                                    Grid.Row="1"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Nº falha"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right"
+                                    Text="{Binding OrdemServico.CodigoFalha, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                </Grid>
+            </mah:MetroTabItem>
+            <mah:MetroTabItem
+                x:Name="tbiPagina2"
+                Header="Passo 2"
+                Visibility="{c:Binding 'OrdemServico.EtapasConcluidas >= 2',
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <Grid
+                    Height="540"
+                    VerticalAlignment="Top"
+                    IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="5*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox
+                        x:Name="grpStatusEquipamento"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="2"
+                        Header="Status do equipamento">
+                        <AdornerDecorator x:Name="adStatusEquipamento">
+                            <Grid x:Name="grdStatusEquipamento">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.6*" />
+                                    <ColumnDefinition Width="0.5*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="2*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid
+                                    x:Name="grdEquipamentoOperacional"
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Height="50"
+                                    Margin="2"
+                                    VerticalAlignment="Center">
+                                    <Grid.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.EquipamentoOperacional"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </Grid.Tag>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24" />
+                                        <RowDefinition Height="20" />
+                                    </Grid.RowDefinitions>
+                                    <Label
+                                        x:Name="lblEquipamentoOperacional"
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Grid.ColumnSpan="2"
+                                        Content="Equipamento operacional" />
+                                    <RadioButton
+                                        x:Name="rdbEquipamentoOperacional1"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Content="Sim"
+                                        IsChecked="{c:Binding OrdemServico.EquipamentoOperacional,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}" />
+                                    <RadioButton
+                                        x:Name="rdbEquipamentoOperacional2"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Content="Não"
+                                        IsChecked="{c:Binding !OrdemServico.EquipamentoOperacional,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                                <mah:NumericUpDown
+                                    x:Name="nudHorimetro"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    HorizontalContentAlignment="Stretch"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Horímetro"
+                                    mah:TextBoxHelper.WatermarkAlignment="Left"
+                                    Culture="pt-BR"
+                                    DecimalPointCorrection="Currency"
+                                    HideUpDownButtons="True"
+                                    InterceptArrowKeys="False"
+                                    InterceptManualEnter="True"
+                                    InterceptMouseWheel="False"
+                                    NumericInputMode="Decimal"
+                                    StringFormat="N2"
+                                    SwitchUpDownButtons="False">
+                                    <mah:NumericUpDown.Value>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="OrdemServico.Horimetro"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraCampoVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </mah:NumericUpDown.Value>
+                                </mah:NumericUpDown>
+                                <ComboBox
+                                    x:Name="cboEquipamentoAposManutencao"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Equipamento após a manutenção"
+                                    DisplayMemberPath="Nome"
+                                    ItemsSource="{Binding ListaStatusEquipamentoAposManutencao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedItem="{Binding OrdemServico.StatusEquipamentoAposManutencao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <Grid Grid.Row="0" Grid.Column="3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox
+                                        x:Name="cboTipoManutencao"
+                                        Grid.Column="0"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.IsWaitingForData="True"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Tipo da manutenção"
+                                        DisplayMemberPath="Nome"
+                                        ItemsSource="{Binding ListaTipoManutencao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        SelectedItem="{Binding TipoManutencao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <ComboBox.Tag>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="SelectedIndex"
+                                                RelativeSource="{RelativeSource Self}"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraComboBoxVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </ComboBox.Tag>
+                                    </ComboBox>
+                                    <ComboBox
+                                        x:Name="cboUsoIndevido"
+                                        Grid.Column="1"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.IsWaitingForData="True"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Uso indevido"
+                                        DisplayMemberPath="Nome"
+                                        ItemsSource="{Binding ListaUsoIndevido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        SelectedItem="{Binding OrdemServico.UsoIndevido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Visibility="{c:Binding Path=UsoIndevidoVisivel,
+                                                               Mode=OneWay,
+                                                               UpdateSourceTrigger=PropertyChanged}">
+                                        <ComboBox.Tag>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="SelectedIndex"
+                                                RelativeSource="{RelativeSource Self}"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraComboBoxVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </ComboBox.Tag>
+                                    </ComboBox>
+                                    <mah:NumericUpDown
+                                        x:Name="nudHorasPreventiva"
+                                        Grid.Column="1"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        HorizontalContentAlignment="Stretch"
+                                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Horas"
+                                        mah:TextBoxHelper.WatermarkAlignment="Left"
+                                        Culture="pt-BR"
+                                        DecimalPointCorrection="Currency"
+                                        HideUpDownButtons="True"
+                                        InterceptArrowKeys="False"
+                                        InterceptManualEnter="True"
+                                        InterceptMouseWheel="False"
+                                        NumericInputMode="Decimal"
+                                        StringFormat="N0"
+                                        SwitchUpDownButtons="False"
+                                        Visibility="{c:Binding Path=HorasPreventivaVisivel,
+                                                               Mode=OneWay,
+                                                               UpdateSourceTrigger=PropertyChanged}">
+                                        <mah:NumericUpDown.Value>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServico.HorasPreventiva"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </mah:NumericUpDown.Value>
+                                    </mah:NumericUpDown>
+                                    <TextBox
+                                        x:Name="txtOutro"
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Descreva"
+                                        mah:TextBoxHelper.WatermarkAlignment="Right"
+                                        Visibility="{c:Binding Path=OutroVisivel,
+                                                               Mode=OneWay,
+                                                               UpdateSourceTrigger=PropertyChanged}">
+                                        <TextBox.Text>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServico.OutroTipoManutencao"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </Grid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpDescricoesAtendimento"
+                        Grid.Row="1"
+                        Margin="2"
+                        Header="Descrições do atendimento">
+                        <AdornerDecorator x:Name="adDescricoesAtendimento">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="spDescricoesAtendimento" Orientation="Vertical">
+                                    <TextBox
+                                        x:Name="txtMotivoAtendimento"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                        mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Motivo do atendimento"
+                                        mah:TextBoxHelper.WatermarkAlignment="Right"
+                                        AcceptsReturn="True"
+                                        TextWrapping="Wrap">
+                                        <TextBox.Text>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServico.MotivoAtendimento"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <TextBox
+                                        x:Name="txtEntrevistaInicial"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                        mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Entrevista inicial"
+                                        mah:TextBoxHelper.WatermarkAlignment="Right"
+                                        AcceptsReturn="True"
+                                        TextWrapping="Wrap">
+                                        <TextBox.Text>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServico.EntrevistaInicial"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                    <TextBox
+                                        x:Name="txtIntervencao"
+                                        Margin="2"
+                                        VerticalAlignment="Center"
+                                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                        mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                                        mah:TextBoxHelper.Watermark="Intervenção"
+                                        mah:TextBoxHelper.WatermarkAlignment="Right"
+                                        AcceptsReturn="True"
+                                        TextWrapping="Wrap">
+                                        <TextBox.Text>
+                                            <Binding
+                                                Mode="TwoWay"
+                                                Path="OrdemServico.Intervencao"
+                                                UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <regras:RegraCampoVazio />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </AdornerDecorator>
+                    </GroupBox>
+                </Grid>
+            </mah:MetroTabItem>
+            <mah:MetroTabItem
+                x:Name="tbiPagina3"
+                Header="Passo 3"
+                Visibility="{c:Binding 'OrdemServico.EtapasConcluidas >= 3',
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <GroupBox
+                    x:Name="grpPecas"
+                    Margin="2"
+                    Header="Peças e insumos aplicados e/ou necessários para a manutenção">
+                    <AdornerDecorator x:Name="adPecas">
+                        <Grid x:Name="grdItensProposta">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="3*" />
+                            </Grid.RowDefinitions>
+                            <Menu x:Name="mnuMenuPrincipalItens" Grid.Row="0">
+                                <MenuItem
+                                    x:Name="mniAdicionarItens"
+                                    Command="{Binding ComandoAdicionarItem}"
+                                    Header="Adicionar"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="LightSeaGreen"
+                                            Kind="Plus" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    x:Name="mniEditarItens"
+                                    Command="{Binding ComandoEditarItem}"
+                                    Header="Editar"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="LightSalmon"
+                                            Kind="Pencil" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    x:Name="mniRemoverItens"
+                                    Command="{Binding ComandoRemoverItem}"
+                                    Header="Remover"
+                                    IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="IndianRed"
+                                            Kind="Minus" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    x:Name="mniExportarItens"
+                                    Header="Exportar"
+                                    IsEnabled="{Binding OrdemServico.ListaItensOrdemServico.Count, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="DarkCyan"
+                                            Kind="FileExport" />
+                                    </MenuItem.Icon>
+                                    <MenuItem
+                                        x:Name="mniExportarItensFluig"
+                                        Command="{Binding ComandoExportarFormatoFluig}"
+                                        Header="Formato Fluig (Kion)" />
+                                    <MenuItem
+                                        x:Name="mniExportarItensCompleta"
+                                        Command="{Binding ComandoExportarTabelaCompleta}"
+                                        Header="Tabela completa"
+                                        IsEnabled="{Binding OrdemServico.ListaItensOrdemServico.Count, Mode=OneWay}" />
+                                </MenuItem>
+                            </Menu>
+                            <syncfusion:SfDataGrid
+                                x:Name="GridItens"
+                                Grid.Row="1"
+                                AllowDrop="False"
+                                GridCopyOption="None"
+                                ItemsSource="{Binding OrdemServico.ListaItensOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                SelectedItem="{Binding ItemOrdemServicoSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                SelectionChanged="GridItens_SelectionChanged"
+                                SelectionMode="Extended"
+                                ToolTip="Clique com o botão direito para ver as opções&#x0a;Segure CTRL ou SHIFT para selecionar múltiplos itens">
+                                <syncfusion:SfDataGrid.Resources>
+                                    <proxies:BindingProxy x:Key="proxy" Data="{Binding}" />
+                                </syncfusion:SfDataGrid.Resources>
+                                <syncfusion:SfDataGrid.RecordContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem
+                                            DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                                            Header="Conjunto/Especificação"
+                                            IsEnabled="{Binding Path=Data.ControlesHabilitados, Source={StaticResource proxy}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                            <MenuItem
+                                                x:Name="mniConjuntoEspecificacaoApenasItemSelecionado"
+                                                DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                                                Header="Apenas itens selecionados"
+                                                ItemsSource="{Binding Data.ListaConjunto, Source={StaticResource proxy}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                                <MenuItem.ItemTemplate>
+                                                    <HierarchicalDataTemplate ItemsSource="{Binding ListaEspecificacoes}">
+                                                        <TextBlock
+                                                            x:Name="txbConjuntoEspecificacaoApenasItemSelecionado"
+                                                            MouseUp="txbConjuntoEspecificacaoApenasItemSelecionado_MouseUp"
+                                                            Tag="{Binding}"
+                                                            Text="{Binding Nome}"
+                                                            ToolTip="Ao alterar o conjunto se já existir uma especificação ela será limpa. Ao alterar a especificação que pertença a um conjunto diferente do que está selecionado, ele também será alterado" />
+                                                    </HierarchicalDataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                            </MenuItem>
+                                            <MenuItem
+                                                x:Name="mniConjuntoEspecificacaoTodosOsItens"
+                                                DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}"
+                                                Header="Todos os itens"
+                                                ItemsSource="{Binding Data.ListaConjunto, Source={StaticResource proxy}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                                <MenuItem.ItemTemplate>
+                                                    <HierarchicalDataTemplate ItemsSource="{Binding ListaEspecificacoes}">
+                                                        <TextBlock
+                                                            x:Name="txbConjuntoEspecificacaoTodosOsItens"
+                                                            MouseUp="txbConjuntoEspecificacaoTodosOsItens_MouseUp"
+                                                            Tag="{Binding}"
+                                                            Text="{Binding Nome}"
+                                                            ToolTip="Ao alterar todos os conjuntos, todas as especificações serão limpas. Ao alterar todas as especificações, todos os conjuntos serão alterados para o respectivo da especificação selecionada" />
+                                                    </HierarchicalDataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                            </MenuItem>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </syncfusion:SfDataGrid.RecordContextMenu>
+                                <syncfusion:SfDataGrid.Columns>
+                                    <syncfusion:GridTextColumn HeaderText="Código" MappingName="CodigoItem" />
+                                    <syncfusion:GridTextColumn HeaderText="Descrição" MappingName="DescricaoItem" />
+                                    <syncfusion:GridNumericColumn
+                                        HeaderText="Quantidade"
+                                        MappingName="QuantidadeItem"
+                                        NumberDecimalDigits="0"
+                                        NumberGroupSizes="3" />
+                                    <syncfusion:GridTextColumn HeaderText="Conjunto" MappingName="Conjunto.Nome" />
+                                    <syncfusion:GridTextColumn HeaderText="Especificação" MappingName="Especificacao.Nome" />
+                                    <syncfusion:GridTextColumn HeaderText="Motivo" MappingName="MotivoItemOrdemServico.NomeESigla" />
+                                    <syncfusion:GridTextColumn HeaderText="Fornecimento" MappingName="FornecimentoItemOrdemServico.NomeESigla" />
+                                    <syncfusion:GridTextColumn HeaderText="Usuário" MappingName="Usuario.Login" />
+                                    <syncfusion:GridDateTimeColumn
+                                        CustomPattern="dd/MM/yyyy HH:mm"
+                                        HeaderText="Data de inserção"
+                                        MappingName="DataInsercao"
+                                        Pattern="CustomPattern" />
+                                    <syncfusion:GridDateTimeColumn
+                                        CustomPattern="dd/MM/yyyy HH:mm"
+                                        HeaderText="Data de edição"
+                                        MappingName="DataEdicaoItem"
+                                        Pattern="CustomPattern" />
+                                    <syncfusion:GridTextColumn HeaderText="Status" MappingName="Status.Nome" />
+                                    <syncfusion:GridTextColumn HeaderText="Comentários" MappingName="ComentariosItem" />
+                                </syncfusion:SfDataGrid.Columns>
+                            </syncfusion:SfDataGrid>
+                        </Grid>
+                    </AdornerDecorator>
+                </GroupBox>
+            </mah:MetroTabItem>
+            <mah:MetroTabItem
+                x:Name="tbiPagina4"
+                Header="Passo 4"
+                Visibility="{c:Binding 'OrdemServico.EtapasConcluidas >= 4',
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="90" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox
+                        x:Name="grpAtendimento"
+                        Grid.Row="0"
+                        Margin="2"
+                        Header="Atendimento">
+                        <AdornerDecorator x:Name="adAtendimento">
+                            <Grid IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="140" />
+                                    <ColumnDefinition MaxWidth="140" />
+                                    <ColumnDefinition MaxWidth="140" />
+                                    <ColumnDefinition MaxWidth="280" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <mah:DateTimePicker
+                                    x:Name="datDataSaida"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Data da saída"
+                                    Culture="pt-BR"
+                                    DisplayDateEnd="{Binding OrdemServico.DataChegada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsTodayHighlighted="True"
+                                    SelectedDateFormat="Short"
+                                    SelectedDateTime="{Binding OrdemServico.DataSaida, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedTimeFormat="Short">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoVerificaDataSaida}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </mah:DateTimePicker>
+                                <mah:DateTimePicker
+                                    x:Name="datDataChegada"
+                                    Grid.Column="1"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Data da chegada"
+                                    Culture="pt-BR"
+                                    DisplayDateEnd="{Binding OrdemServico.DataRetorno, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    DisplayDateStart="{Binding OrdemServico.DataSaida, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsTodayHighlighted="True"
+                                    SelectedDateFormat="Short"
+                                    SelectedDateTime="{Binding OrdemServico.DataChegada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedTimeFormat="Short">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoVerificaDataChegada}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </mah:DateTimePicker>
+                                <mah:DateTimePicker
+                                    x:Name="datDataRetorno"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Data do retorno"
+                                    Culture="pt-BR"
+                                    DisplayDateStart="{Binding OrdemServico.DataChegada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsTodayHighlighted="True"
+                                    SelectedDateFormat="Short"
+                                    SelectedDateTime="{Binding OrdemServico.DataRetorno, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectedTimeFormat="Short">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="LostFocus">
+                                            <i:InvokeCommandAction Command="{Binding ComandoVerificaDataRetorno}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </mah:DateTimePicker>
+                                <ComboBox
+                                    x:Name="cboExecutante"
+                                    Grid.Column="3"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.IsWaitingForData="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Executante do serviço"
+                                    DisplayMemberPath="Nome"
+                                    ItemsSource="{Binding ListaExecutanteServico, Mode=TwoWay}"
+                                    SelectedItem="{Binding OrdemServico.ExecutanteServico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <ComboBox.Tag>
+                                        <Binding
+                                            Mode="TwoWay"
+                                            Path="SelectedIndex"
+                                            RelativeSource="{RelativeSource Self}"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <regras:RegraComboBoxVazio />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Tag>
+                                </ComboBox>
+                                <TextBox
+                                    x:Name="txtComentarios"
+                                    Grid.Column="4"
+                                    Margin="2"
+                                    VerticalAlignment="Center"
+                                    mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                    mah:TextBoxHelper.IsSpellCheckContextMenuEnabled="True"
+                                    mah:TextBoxHelper.UseFloatingWatermark="True"
+                                    mah:TextBoxHelper.Watermark="Comentários"
+                                    mah:TextBoxHelper.WatermarkAlignment="Right"
+                                    AcceptsReturn="True"
+                                    Text="{Binding OrdemServico.Comentarios, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TextWrapping="Wrap" />
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpEventos"
+                        Grid.Row="1"
+                        Margin="2"
+                        Header="Eventos">
+                        <AdornerDecorator x:Name="adEventos">
+                            <Grid x:Name="grdEventos">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="32" />
+                                    <RowDefinition Height="3*" />
+                                </Grid.RowDefinitions>
+                                <Menu x:Name="mnuMenuPrincipalEventos" Grid.Row="0">
+                                    <MenuItem
+                                        x:Name="mniAdicionarEventos"
+                                        Command="{Binding ComandoAdicionarEvento}"
+                                        Header="Adicionar"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="LightSeaGreen"
+                                                Kind="Plus" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniEditarEvento"
+                                        Command="{Binding ComandoEditarEvento}"
+                                        Header="Editar"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="LightSalmon"
+                                                Kind="Pencil" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniRemoverEvento"
+                                        Command="{Binding ComandoRemoverEvento}"
+                                        Header="Remover"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="IndianRed"
+                                                Kind="Minus" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniExportarEventos"
+                                        Command="{Binding ComandoExportarEvento}"
+                                        Header="Exportar"
+                                        IsEnabled="{Binding OrdemServico.ListaEventosOrdemServico.Count, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="DarkCyan"
+                                                Kind="FileExport" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                                <syncfusion:SfDataGrid
+                                    x:Name="GridEventos"
+                                    Grid.Row="1"
+                                    AllowDrop="False"
+                                    GridCopyOption="None"
+                                    ItemsSource="{Binding OrdemServico.ListaEventosOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectedItem="{Binding EventoOrdemServicoSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectionChanged="GridEventos_SelectionChanged"
+                                    SelectionMode="Extended"
+                                    ToolTip="Segure CTRL ou SHIFT para selecionar múltiplos itens">
+                                    <syncfusion:SfDataGrid.Resources>
+                                        <proxies:BindingProxy x:Key="proxy" Data="{Binding}" />
+                                    </syncfusion:SfDataGrid.Resources>
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de início"
+                                            MappingName="DataInicio"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data fim"
+                                            MappingName="DataFim"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridTextColumn HeaderText="Evento" MappingName="Evento.Nome" />
+                                        <syncfusion:GridTextColumn HeaderText="Usuário" MappingName="Usuario.Login" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de inserção"
+                                            MappingName="DataInsercao"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de edição"
+                                            MappingName="DataEdicaoItem"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridTextColumn HeaderText="Status" MappingName="Status.Nome" />
+                                        <syncfusion:GridTextColumn HeaderText="Comentários" MappingName="ComentariosItem" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                    <GroupBox
+                        x:Name="grpInconsistencias"
+                        Grid.Row="2"
+                        Margin="2"
+                        Header="Inconsistências">
+                        <AdornerDecorator x:Name="adInconsistencias">
+                            <Grid x:Name="grdInconsistencias">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="32" />
+                                    <RowDefinition Height="3*" />
+                                </Grid.RowDefinitions>
+                                <Menu x:Name="mnuMenuPrincipalInconsistencias" Grid.Row="0">
+                                    <MenuItem
+                                        x:Name="mniAdicionarInconsistencia"
+                                        Command="{Binding ComandoAdicionarInconsistencia}"
+                                        Header="Adicionar"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="LightSeaGreen"
+                                                Kind="Plus" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniEditarInconsistencia"
+                                        Command="{Binding ComandoEditarInconsistencia}"
+                                        Header="Editar"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="LightSalmon"
+                                                Kind="Pencil" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniRemoverInconsistencia"
+                                        Command="{Binding ComandoRemoverInconsistencia}"
+                                        Header="Remover"
+                                        IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="IndianRed"
+                                                Kind="Minus" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniExportarInconsistencias"
+                                        Command="{Binding ComandoExportarInconsistencia}"
+                                        Header="Exportar"
+                                        IsEnabled="{Binding OrdemServico.ListaInconsistenciasOrdemServico.Count, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                VerticalAlignment="Center"
+                                                Foreground="DarkCyan"
+                                                Kind="FileExport" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                                <syncfusion:SfDataGrid
+                                    x:Name="GridInconsistencias"
+                                    Grid.Row="1"
+                                    AllowDrop="False"
+                                    GridCopyOption="None"
+                                    ItemsSource="{Binding OrdemServico.ListaInconsistenciasOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectedItem="{Binding InconsistenciaOrdemServicoSelecionada, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                    SelectionChanged="GridInconsistencias_SelectionChanged"
+                                    SelectionMode="Extended"
+                                    ToolTip="Segure CTRL ou SHIFT para selecionar múltiplos itens">
+                                    <syncfusion:SfDataGrid.Resources>
+                                        <proxies:BindingProxy x:Key="proxy" Data="{Binding}" />
+                                    </syncfusion:SfDataGrid.Resources>
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridTextColumn HeaderText="Inconsistência" MappingName="Inconsistencia.Nome" />
+                                        <syncfusion:GridTextColumn HeaderText="Usuário" MappingName="Usuario.Login" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de inserção"
+                                            MappingName="DataInsercao"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de edição"
+                                            MappingName="DataEdicaoItem"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridTextColumn HeaderText="Status" MappingName="Status.Nome" />
+                                        <syncfusion:GridTextColumn HeaderText="Comentários" MappingName="ComentariosItem" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </GroupBox>
+                </Grid>
+            </mah:MetroTabItem>
+        </TabControl>
+        <StackPanel
+            x:Name="grdBarraDeStatus"
+            Grid.Row="2"
+            Background="LightGray"
+            Orientation="Vertical">
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="Visible"
+                Value="{Binding ValorProgresso}" />
+            <StatusBar Name="stbStatus" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
+                <TextBlock
+                    x:Name="tblStatus"
+                    Foreground="Black"
+                    Text="{Binding MensagemStatus, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </StackPanel>
+        <Rectangle
+            Grid.RowSpan="2"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{c:Binding CarregamentoVisivel,
+                                   Mode=OneWay,
+                                   UpdateSourceTrigger=PropertyChanged}" />
+        <Grid
+            Grid.RowSpan="2"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{c:Binding CarregamentoVisivel,
+                                   Mode=OneWay,
+                                   UpdateSourceTrigger=PropertyChanged}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

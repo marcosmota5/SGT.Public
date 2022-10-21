@@ -1,0 +1,244 @@
+﻿<UserControl
+    x:Class="SGT.Views.ParametroTiposManutencaoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperclasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    d:Background="White"
+    d:Height="580"
+    d:Width="560"
+    mah:DialogParticipation.Register="{Binding}"
+    Style="{StaticResource EstiloUserControlParametros1}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BooleanAndConverter x:Key="booleanAndConverter" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="100" />
+            <RowDefinition />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Menu x:Name="mnuMenuPrincipal" Grid.Row="0">
+            <MenuItem
+                x:Name="mniSalvar"
+                Click="mniSalvar_Click"
+                Command="{Binding ComandoSalvar}"
+                Header="Salvar"
+                IsEnabled="{Binding PermiteSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                ToolTipService.ShowOnDisabled="True"
+                Visibility="{Binding Path=SalvarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="SteelBlue"
+                        Kind="ContentSave" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniAdicionar"
+                Command="{Binding ComandoAdicionar}"
+                Header="Novo"
+                IsEnabled="{Binding PermiteAdicionar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="LightSeaGreen"
+                        Kind="Plus" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniEditar"
+                Command="{Binding ComandoEditar}"
+                Header="Editar"
+                IsEnabled="{Binding PermiteEditar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="LightSalmon"
+                        Kind="Pencil" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniDeletar"
+                Command="{Binding ComandoDeletar}"
+                Header="Deletar"
+                IsEnabled="{Binding PermiteDeletar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding Path=DeletarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Delete" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCancelar"
+                Command="{Binding ComandoCancelar}"
+                Header="Cancelar"
+                IsEnabled="{Binding PermiteCancelar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding Path=CancelarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="IndianRed"
+                        Kind="Cancel" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </Menu>
+        <GroupBox
+            x:Name="grpTipoManutencaoSelecionado"
+            Grid.Row="1"
+            Margin="2"
+            Header="Tipo de manutenção selecionado">
+            <AdornerDecorator x:Name="adTipoManutencaoSelecionado">
+                <Grid IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="420" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        x:Name="txtNome"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        d:Text="Nome"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Nome"
+                        mah:TextBoxHelper.WatermarkAlignment="Right">
+                        <TextBox.Text>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="TipoManutencaoAlterar.Nome"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <ComboBox
+                        x:Name="cboStatus"
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Status"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.SelectedItem>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="TipoManutencaoAlterar.Status"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.SelectedItem>
+                    </ComboBox>
+                </Grid>
+            </AdornerDecorator>
+        </GroupBox>
+        <GroupBox
+            x:Name="grpResultados"
+            Grid.Row="2"
+            Margin="2"
+            Header="Lista de tipos de manutenção*"
+            IsEnabled="{Binding ListaHabilitada, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <AdornerDecorator>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="16" />
+                    </Grid.RowDefinitions>
+                    <syncfusion:SfDataGrid
+                        Grid.Row="0"
+                        ItemsSource="{Binding ListaTiposManutencao, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                        SelectedItem="{Binding TipoManutencaoSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+                        <syncfusion:SfDataGrid.Columns>
+                            <syncfusion:GridTextColumn HeaderText="Nome" MappingName="Nome" />
+                            <syncfusion:GridTextColumn HeaderText="Status" MappingName="Status.Nome" />
+                        </syncfusion:SfDataGrid.Columns>
+                    </syncfusion:SfDataGrid>
+                    <TextBlock Grid.Row="1" Text="*Não é permitido gerenciar os tipos Preventiva, Uso indevido e Outro, por isso eles não são visíveis." />
+                </Grid>
+            </AdornerDecorator>
+        </GroupBox>
+        <Grid
+            x:Name="grdStatus"
+            Grid.Row="3"
+            Margin="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                Grid.Row="0"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="{Binding ProgressoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}, IsAsync=True}"
+                Value="{Binding ValorProgresso, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}" />
+            <TextBlock
+                x:Name="tblStatus"
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                d:Text="0%"
+                FontSize="12"
+                Foreground="Black"
+                Text="{Binding TextoProgresso, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                Visibility="{Binding ProgressoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}, IsAsync=True}" />
+            <StatusBar Grid.Row="1" Background="LightGray">
+                <TextBlock
+                    x:Name="tblStatusBar"
+                    Foreground="DarkSlateGray"
+                    Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </Grid>
+        <Rectangle
+            Grid.RowSpan="4"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Grid
+            Grid.RowSpan="4"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

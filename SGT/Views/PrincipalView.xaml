@@ -1,0 +1,801 @@
+﻿<UserControl
+    x:Class="SGT.Views.PrincipalView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:ct="clr-namespace:ChromeTabs;assembly=ChromeTabs"
+    xmlns:ctConv="clr-namespace:ChromeTabs.Converters;assembly=ChromeTabs"
+    xmlns:customControls="clr-namespace:SGT.CustomControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    xmlns:views="clr-namespace:SGT.Views"
+    d:Height="720"
+    d:Width="1280"
+    mah:DialogParticipation.Register="{Binding}"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    Loaded="UserControl_Loaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+        <DataTemplate DataType="{x:Type viewmodels:PropostaViewModel}">
+            <views:PropostaView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:PesquisarPropostaViewModel}">
+            <views:PesquisarPropostaView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:OrdemServicoViewModel}">
+            <views:OrdemServicoView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:PesquisarOrdemServicoViewModel}">
+            <views:PesquisarOrdemServicoView />
+        </DataTemplate>
+        <Thickness x:Key="MargemSubMenu1">0,0,0,0</Thickness>
+
+        <!--  A new style for the close tab button, where it is enlarged and recolored.  -->
+        <Style x:Key="CloseButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Height" Value="14" />
+            <Setter Property="Width" Value="14" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.ThemeForeground}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Canvas
+                            x:Name="CloseButton"
+                            Width="14"
+                            Height="14"
+                            Background="Transparent">
+                            <Ellipse
+                                Width="14"
+                                Height="14"
+                                Fill="{TemplateBinding Background}" />
+                            <Canvas
+                                Canvas.Left="3"
+                                Canvas.Top="3"
+                                Width="8"
+                                Height="8"
+                                Background="Transparent">
+                                <Line
+                                    Stroke="{TemplateBinding Foreground}"
+                                    StrokeThickness="2"
+                                    X1="0"
+                                    X2="8"
+                                    Y1="0"
+                                    Y2="8" />
+                                <Line
+                                    Stroke="{TemplateBinding Foreground}"
+                                    StrokeThickness="2"
+                                    X1="0"
+                                    X2="8"
+                                    Y1="8"
+                                    Y2="0" />
+                            </Canvas>
+                        </Canvas>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Red" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="{x:Type ct:ChromeTabItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ct:ChromeTabItem}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="5" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="5" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem
+                                        Command="{Binding CloseTabCommand, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar" />
+                                    <MenuItem
+                                        Command="{Binding CloseAllTabsCommand, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar todas" />
+                                    <MenuItem
+                                        Command="{Binding CloseOtherTabsCommand, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        CommandParameter="{Binding}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar todas as outras" />
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <ct:TabShape
+                                x:Name="TabFill"
+                                Grid.ColumnSpan="5"
+                                VerticalAlignment="Top"
+                                Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                                Stretch="Fill" />
+                            <ct:TabShape
+                                x:Name="TabPath"
+                                Grid.ColumnSpan="5"
+                                VerticalAlignment="Top"
+                                Stretch="Fill"
+                                Stroke="{DynamicResource MahApps.Brushes.Gray}" />
+                            <ContentPresenter
+                                x:Name="ContentSite"
+                                Grid.Column="1"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                ContentSource="Header" />
+                            <Button
+                                x:Name="CloseButton"
+                                Grid.Column="2"
+                                Margin="0,0,5,0"
+                                Command="{Binding CloseTabCommand, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                KeyboardNavigation.IsTabStop="False"
+                                Style="{StaticResource CloseButtonStyle}" />
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--  This trigger changes the look of the currently selected tab item  -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabFill" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedTabBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style
+            x:Key="ExpanderDownHeaderStyle"
+            BasedOn="{StaticResource MahApps.Styles.ToggleButton}"
+            TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                            <ContentPresenter
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding TamanhoMenu}" d:Width="190" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Border
+                Grid.Column="0"
+                BorderBrush="{DynamicResource MahApps.Brushes.Control.Border}"
+                BorderThickness="1">
+                <Grid Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="{Binding TamanhoDadosUsuario}" d:Height="80" />
+                        <RowDefinition />
+                        <RowDefinition Height="25" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Background="{DynamicResource MahApps.Brushes.Accent}" Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial
+                            Margin="4,0"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource MahApps.Brushes.Accent4}"
+                            Kind="Menu"
+                            MouseLeftButtonDown="PackIconMaterial_MouseLeftButtonDown"
+                            ToolTip="Exibir/ocultar menu lateral">
+                            <iconPacks:PackIconMaterial.Style>
+                                <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="Gray" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconMaterial.Style>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVisibilidadeMenu}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </iconPacks:PackIconMaterial>
+                        <TextBlock
+                            x:Name="TextoMenu"
+                            Margin="10,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            Foreground="White"
+                            Text="Menu"
+                            Visibility="{Binding Path=MenuVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                    <Border
+                        Grid.Row="1"
+                        Padding="0,0,0,0"
+                        BorderBrush="{DynamicResource MahApps.Brushes.Gray}"
+                        BorderThickness="0,0,0,1">
+                        <Grid Visibility="{Binding Path=MenuVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Image
+                                x:Name="imgFotoAlternativa"
+                                Grid.RowSpan="3"
+                                Grid.Column="0"
+                                Margin="6"
+                                Source="{Binding Source={x:Static iconPacks:PackIconMaterialKind.AccountBox}, Converter={iconPacks:PackIconMaterialKindToImageConverter}}"
+                                Visibility="{Binding Path=ImagemPadraoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                            <Image
+                                x:Name="imgFotoUsuario"
+                                Grid.RowSpan="3"
+                                Grid.Column="0"
+                                Width="50"
+                                Height="50"
+                                Margin="6"
+                                Source="{Binding UsuarioLogado.Imagem}"
+                                Stretch="Fill" />
+                            <Grid
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="0"
+                                    Width="10"
+                                    Height="10"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Kind="Account" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Center"
+                                    d:Text="Nome do usuário"
+                                    FontSize="10"
+                                    Text="{Binding NomeAbreviado}" />
+                            </Grid>
+                            <Grid Grid.Row="1" Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="0"
+                                    Width="10"
+                                    Height="10"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Kind="BadgeAccountHorizontal" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Center"
+                                    d:Text="Perfil do usuário"
+                                    FontSize="10"
+                                    Text="{Binding UsuarioLogado.Perfil.Nome}" />
+                            </Grid>
+                            <Grid
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="0"
+                                    Width="10"
+                                    Height="10"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Kind="Domain" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="2,0,0,0"
+                                    VerticalAlignment="Center"
+                                    d:Text="Setor do usuário"
+                                    FontSize="10"
+                                    Text="{Binding UsuarioLogado.Setor.Nome}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Vertical">
+                            <Expander
+                                x:Name="expBase"
+                                Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="True"
+                                Visibility="Collapsed" />
+                            <Expander
+                                x:Name="expPropostas"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="True"
+                                ToolTip="Propostas">
+                                <Expander.Header>
+                                    <Grid Margin="0,-4" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="White"
+                                            Kind="Handshake" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Left"
+                                            FontSize="14"
+                                            Foreground="White"
+                                            Text="Propostas"
+                                            Visibility="{Binding Path=MenuVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                                    </Grid>
+                                </Expander.Header>
+                                <Menu
+                                    x:Name="mnuPropostas"
+                                    FlowDirection="LeftToRight"
+                                    ToolTip="Inserir nova proposta">
+                                    <MenuItem
+                                        x:Name="mniPropostasInserir"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoInserirProposta}"
+                                        Header="Inserir nova">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="PlusBox" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniPropostasPesquisar"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoPesquisarProposta}"
+                                        Header="Pesquisar"
+                                        ToolTip="Pesquisar proposta">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="SelectionSearch" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </Expander>
+                            <Expander
+                                x:Name="expOrdensServico"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="True"
+                                ToolTip="Ordens de serviço"
+                                Visibility="{Binding Path=OrdemServicoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                <Expander.Header>
+                                    <Grid Margin="0,-4" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="White"
+                                            Kind="CarWrench" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Left"
+                                            FontSize="14"
+                                            Foreground="White"
+                                            Text="Ordens de serviço" />
+                                    </Grid>
+                                </Expander.Header>
+                                <Menu x:Name="mnuOrdensServico" FlowDirection="LeftToRight">
+                                    <MenuItem
+                                        x:Name="mniOrdensServicoInserir"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoInserirOrdemServico}"
+                                        Header="Inserir nova"
+                                        ToolTip="Inserir nova ordem de serviço">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="PlusBox" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniOrdensServicoPesquisar"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoPesquisarOrdemServico}"
+                                        Header="Pesquisar"
+                                        ToolTip="Pesquisar ordem de serviço">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="SelectionSearch" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniOrdensServicoExportar"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoExportarOrdemServico}"
+                                        Header="Exportar"
+                                        ToolTip="Exportar database completa em formato determinado">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="DatabaseExport" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </Expander>
+                            <Expander
+                                x:Name="expUsuarios"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="True"
+                                ToolTip="Usuários">
+                                <Expander.Header>
+                                    <Grid Margin="0,-4" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="White"
+                                            Kind="AccountGroup" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Left"
+                                            FontSize="14"
+                                            Foreground="White"
+                                            Text="Usuários" />
+                                    </Grid>
+                                </Expander.Header>
+                                <Menu x:Name="mnuUsuarios" FlowDirection="LeftToRight">
+                                    <MenuItem
+                                        x:Name="mniAlterarUsuario"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAlterarUsuario}"
+                                        Header="Alterar usuário"
+                                        ToolTip="Alterar usuário">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="AccountSwitch" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniUsuariosPerfil"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAbrirPerfil}"
+                                        Header="Perfil"
+                                        ToolTip="Perfil">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="AccountCircle" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniUsuariosCadastrar"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoCadastrar}"
+                                        Header="Cadastrar"
+                                        ToolTip="Cadastrar"
+                                        Visibility="{Binding Path=CadastrarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="AccountPlus" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniUsuariosGerenciar"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoGerenciar}"
+                                        Header="Gerenciar"
+                                        ToolTip="Gerenciar"
+                                        Visibility="{Binding Path=GerenciarUsuariosVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="AccountCog" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniUsuariosAlterarSenha"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAlterarSenha}"
+                                        Header="Alterar senha"
+                                        ToolTip="Alterar senha">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="AccountKey" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </Expander>
+                            <Expander
+                                x:Name="expFerramentas"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="True"
+                                ToolTip="Ferramentas"
+                                Visibility="Visible">
+                                <Expander.Header>
+                                    <Grid Margin="0,-4" FlowDirection="LeftToRight">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="30" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="White"
+                                            Kind="Tools" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Left"
+                                            FontSize="14"
+                                            Foreground="White"
+                                            Text="Ferramentas" />
+                                    </Grid>
+                                </Expander.Header>
+                                <Menu x:Name="mnuFerrametnas" FlowDirection="LeftToRight">
+                                    <MenuItem
+                                        x:Name="mniFerramentasParametros"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAbrirParametros}"
+                                        Header="Parâmetros"
+                                        ToolTip="Parâmetros"
+                                        Visibility="{Binding Path=ParametrosVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="Tune" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+
+                                    <MenuItem
+                                        x:Name="mniFerramentasRequisicoes"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Header="Requisições"
+                                        ToolTip="Requisições">
+                                        <MenuItem.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel />
+                                            </ItemsPanelTemplate>
+                                        </MenuItem.ItemsPanel>
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="TextBox" />
+                                        </MenuItem.Icon>
+                                        <MenuItem
+                                            x:Name="mniFerramentasRequisicoesAdiciona"
+                                            Margin="{StaticResource MargemSubMenu1}"
+                                            Command="{Binding ComandoNovaRequisicao}"
+                                            Header="Nova"
+                                            ToolTip="Inserir nova requisição">
+                                            <MenuItem.Icon>
+                                                <iconPacks:PackIconMaterial
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                    Kind="TextBoxPlus" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem
+                                            x:Name="mniFerramentasRequisicoesPesquisar"
+                                            Margin="{StaticResource MargemSubMenu1}"
+                                            Command="{Binding ComandoPesquisarRequisicao}"
+                                            Header="Pesquisar"
+                                            ToolTip="Pesquisar requisição">
+                                            <MenuItem.Icon>
+                                                <iconPacks:PackIconMaterial
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                    Kind="TextBoxSearch" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniFerramentasRegistroAlteracoes"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAbrirLogAlteracoes}"
+                                        Header="Log de alterações"
+                                        ToolTip="Log de alterações">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="FormatListText" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem
+                                        x:Name="mniFerramentasSobre"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Menu}}}"
+                                        Margin="{StaticResource MargemSubMenu1}"
+                                        Command="{Binding ComandoAbrirSobre}"
+                                        Header="Sobre"
+                                        ToolTip="Sobre">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="Information" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <Border
+                        Grid.Row="3"
+                        BorderBrush="{DynamicResource MahApps.Brushes.Gray}"
+                        BorderThickness="0,1,0,0">
+                        <Label
+                            Name="lblTitulo"
+                            Content="© PROREPORTS"
+                            FontSize="12"
+                            FontStyle="Italic"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                            Visibility="{Binding Path=MenuVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                    </Border>
+                </Grid>
+            </Border>
+            <ct:ChromeTabControl
+                x:Name="ctChromeTabWindow"
+                Grid.Column="1"
+                Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                CanMoveTabs="{Binding EdicaoEhEnterprise, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                CloseTabCommand="{Binding RemoveTab}"
+                DragWindowWithOneTab="True"
+                IsAddButtonVisible="False"
+                ItemsSource="{Binding Titles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MaximumTabWidth="180"
+                SelectedItem="{Binding SelectedTitle}"
+                SelectedTabBrush="{DynamicResource MahApps.Brushes.Gray8}"
+                TabDraggedOutsideBonds="TabControl_TabDraggedOutsideBonds"
+                TabPersistBehavior="All"
+                TabTearTriggerDistance="10">
+                <ct:ChromeTabControl.Template>
+                    <ControlTemplate TargetType="{x:Type ct:ChromeTabControl}">
+                        <ControlTemplate.Resources>
+                            <ctConv:TabPersistBehaviorToContentPresenterVisibilityConverter x:Key="TabPersistBehaviorToContentPresenterVisibilityConverter" />
+                            <ctConv:TabPersistBehaviorToItemHolderVisibilityConverter x:Key="TabPersistBehaviorToItemHolderVisibilityConverter" />
+                        </ControlTemplate.Resources>
+                        <Grid IsEnabled="{Binding PermiteSelecionar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border
+                                Grid.Row="0"
+                                Padding="0,2,0,0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#FF999999"
+                                BorderThickness="0,0,0,1">
+                                <ct:ChromeTabPanel Background="{TemplateBinding Background}" IsItemsHost="True" />
+                            </Border>
+
+                            <Grid Grid.Row="1" Visibility="{TemplateBinding TabPersistBehavior, Converter={StaticResource TabPersistBehaviorToContentPresenterVisibilityConverter}}">
+                                <ContentPresenter Content="{TemplateBinding SelectedContent}" />
+                            </Grid>
+                            <Grid
+                                x:Name="PART_ItemsHolder"
+                                Grid.Row="1"
+                                Visibility="{TemplateBinding TabPersistBehavior,
+                                                             Converter={StaticResource TabPersistBehaviorToItemHolderVisibilityConverter}}" />
+                        </Grid>
+                    </ControlTemplate>
+                </ct:ChromeTabControl.Template>
+                <ct:ChromeTabControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ct:ChromeTabItem}}}">
+
+                            <!--<Border BorderBrush="Orange"
+                                BorderThickness="1">-->
+                            <StackPanel Background="Transparent" Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial
+                                    Margin="5,5,5,5"
+                                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                    Kind="{Binding Icone}" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="{Binding Name}"
+                                    TextTrimming="CharacterEllipsis"
+                                    TextWrapping="NoWrap"
+                                    ToolTip="{Binding Name}" />
+                            </StackPanel>
+                            <!--</Border>-->
+
+                            <!--  We can implement a context menu for the header here. The ChromeTabItems expose for convenience the following commands, "CloseTabCommand: close the current tab, "CloseAllTabsCommand", and "CloseOtherTabsCommand", which closes all tabs except the current.  -->
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem
+                                        Command="{Binding Path=PlacementTarget.Tag.CloseTabCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar" />
+                                    <MenuItem
+                                        Command="{Binding Path=PlacementTarget.Tag.CloseAllTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar todas" />
+                                    <MenuItem
+                                        Command="{Binding Path=PlacementTarget.Tag.CloseOtherTabsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        CommandParameter="{Binding}"
+                                        CommandTarget="{Binding Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Header="Fechar todas as outras" />
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                        </Grid>
+                    </DataTemplate>
+                </ct:ChromeTabControl.ItemTemplate>
+            </ct:ChromeTabControl>
+        </Grid>
+    </Grid>
+</UserControl>

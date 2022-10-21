@@ -1,0 +1,497 @@
+﻿<UserControl
+    x:Class="SGT.Views.GerenciarUsuariosView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperclasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    Margin="2"
+    d:Background="White"
+    d:DesignWidth="660"
+    d:Height="580"
+    mah:DialogParticipation.Register="{Binding}"
+    Unloaded="UserControl_Unloaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BooleanAndConverter x:Key="booleanAndConverter" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+        <Style x:Key="GridViewColumnHeaderStyle1" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Accent}" />
+            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.ThemeForeground}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="OverridesDefaultStyle" Value="False" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="180" />
+            <RowDefinition />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Menu x:Name="mnuMenuPrincipal" Grid.Row="0">
+            <MenuItem
+                x:Name="mniSalvar"
+                Click="mniSalvar_Click"
+                Command="{Binding ComandoSalvar}"
+                Header="Salvar"
+                IsEnabled="{Binding PermiteSalvar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                ToolTipService.ShowOnDisabled="True">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="SteelBlue"
+                        Kind="ContentSave" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniEditar"
+                Command="{Binding ComandoEditar}"
+                Header="Editar"
+                IsEnabled="{Binding PermiteEditar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="LightSalmon"
+                        Kind="Pencil" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniDeletar"
+                Command="{Binding ComandoDeletar}"
+                Header="Deletar"
+                IsEnabled="{Binding PermiteDeletar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding Path=DeletarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Gray"
+                        Kind="Delete" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniCancelar"
+                Command="{Binding ComandoCancelar}"
+                Header="Cancelar"
+                IsEnabled="{Binding PermiteCancelar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding Path=CancelarVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="IndianRed"
+                        Kind="Cancel" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem
+                x:Name="mniComandos"
+                Header="Comandos"
+                IsEnabled="{Binding PermiteEditar, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource MahApps.Brushes.Gray6}"
+                        Kind="CogBox" />
+                </MenuItem.Icon>
+                <MenuItem
+                    x:Name="mniDeslogar"
+                    Command="{Binding ComandoDeslogarUsuario}"
+                    Header="Deslogar"
+                    ToolTip="Clique aqui para deslogar o usuário, removendo os bloqueios de registros abertos e obrigando o usuário a logar novamente no sistema">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Foreground="IndianRed"
+                            Kind="LogoutVariant" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem
+                    x:Name="mniResetarSenha"
+                    Command="{Binding ComandoResetarSenha}"
+                    Header="Resetar senha"
+                    ToolTip="Clique aqui resetar a senha do usuário. Será gerada uma senha aleatória que deverá ser informada ao usuário, o qual terá que alterá-la no primeiro login">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource MahApps.Brushes.Gray4}"
+                            Kind="LockReset" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <GroupBox
+            x:Name="grpUsuarioSelecionado"
+            Grid.Row="1"
+            Margin="2"
+            Header="Usuário selecionado"
+            IsEnabled="{Binding EdicaoUsuario, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <AdornerDecorator x:Name="adUsuarioSelecionado">
+                <Grid IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBox
+                        x:Name="txtNome"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Nome"
+                        mah:TextBoxHelper.WatermarkAlignment="Right">
+                        <TextBox.Text>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Nome"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <mah:NumericUpDown
+                        x:Name="nudCPF"
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Stretch"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="CPF"
+                        mah:TextBoxHelper.WatermarkAlignment="Left"
+                        Culture="pt-BR"
+                        DecimalPointCorrection="Number"
+                        HideUpDownButtons="True"
+                        InterceptArrowKeys="False"
+                        InterceptManualEnter="True"
+                        InterceptMouseWheel="False"
+                        Maximum="99999999999"
+                        Minimum="0"
+                        NumericInputMode="Numbers"
+                        StringFormat="000\.000\.000\-00"
+                        SwitchUpDownButtons="False"
+                        TextAlignment="Left">
+                        <mah:NumericUpDown.Value>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.CPF"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </mah:NumericUpDown.Value>
+                    </mah:NumericUpDown>
+                    <Grid
+                        x:Name="grdSexo"
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Height="50"
+                        Margin="2"
+                        VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <Label
+                            x:Name="lblTituloSexo"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Content="Sexo" />
+                        <RadioButton
+                            x:Name="rdbSexo1"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Content="M"
+                            GroupName="Sexo"
+                            IsChecked="{Binding SexoEhMasculino, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <RadioButton
+                            x:Name="rdbSexo2"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Content="F"
+                            GroupName="Sexo"
+                            IsChecked="{Binding SexoEhFeminino, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <TextBox
+                        x:Name="txtLogin"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Login"
+                        mah:TextBoxHelper.WatermarkAlignment="Right">
+                        <TextBox.Text>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Login"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <TextBox
+                        x:Name="txtEmail"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="E-mail"
+                        mah:TextBoxHelper.WatermarkAlignment="Right">
+                        <TextBox.Text>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Email"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                    <regras:RegraCampoInvalido />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <mah:NumericUpDown
+                        x:Name="nudTelefone"
+                        Grid.Row="1"
+                        Grid.Column="3"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Stretch"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Telefone"
+                        mah:TextBoxHelper.WatermarkAlignment="Left"
+                        Culture="pt-BR"
+                        DecimalPointCorrection="Number"
+                        GotFocus="nudTelefone_GotFocus"
+                        HideUpDownButtons="True"
+                        InterceptArrowKeys="False"
+                        InterceptManualEnter="True"
+                        InterceptMouseWheel="False"
+                        KeyDown="nudTelefone_KeyDown"
+                        LostFocus="nudTelefone_LostFocus"
+                        NumericInputMode="Numbers"
+                        StringFormat="{Binding FormatoTelefone, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        SwitchUpDownButtons="False"
+                        TextAlignment="Left"
+                        Value="{Binding UsuarioAlterar.Telefone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <ComboBox
+                        x:Name="cboFilial"
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Filial"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaFiliais, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.SelectedItem>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Filial"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.SelectedItem>
+                    </ComboBox>
+                    <ComboBox
+                        x:Name="cboSetor"
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Setor"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaSetores, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.SelectedItem>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Setor"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.SelectedItem>
+                    </ComboBox>
+                    <ComboBox
+                        x:Name="cboPerfil"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Perfil"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaPerfis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.SelectedItem>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Perfil"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.SelectedItem>
+                    </ComboBox>
+                    <ComboBox
+                        x:Name="cboStatus"
+                        Grid.Row="2"
+                        Grid.Column="3"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Status"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.SelectedItem>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="UsuarioAlterar.Status"
+                                UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <regras:RegraCampoVazio />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.SelectedItem>
+                    </ComboBox>
+                </Grid>
+            </AdornerDecorator>
+        </GroupBox>
+        <GroupBox
+            x:Name="grpResultados"
+            Grid.Row="2"
+            Margin="2"
+            Header="Lista de usuários"
+            IsEnabled="{Binding ListaHabilitada, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <AdornerDecorator x:Name="adResultados">
+                <syncfusion:SfDataGrid
+                    Grid.Row="0"
+                    AllowDrop="False"
+                    ItemsSource="{Binding ListaUsuarios, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                    SelectedItem="{Binding UsuarioSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:GridTextColumn HeaderText="Nome" MappingName="Nome" />
+                        <syncfusion:GridTextColumn HeaderText="Login" MappingName="Login" />
+                        <syncfusion:GridTextColumn HeaderText="E-mail" MappingName="Email" />
+                        <syncfusion:GridMaskColumn
+                            HeaderText="CPF"
+                            IsNumeric="True"
+                            MappingName="CPF"
+                            Mask="000\.000\.000\-00" />
+                        <syncfusion:GridTextColumn HeaderText="Sexo" MappingName="Sexo" />
+                        <syncfusion:GridMaskColumn
+                            HeaderText="Telefone"
+                            IsNumeric="True"
+                            MappingName="Telefone"
+                            Mask="\(00\)\ 00000\-0000" />
+                        <syncfusion:GridTextColumn HeaderText="Filial" MappingName="Filial.Nome" />
+                        <syncfusion:GridTextColumn HeaderText="Setor" MappingName="Setor.Nome" />
+                        <syncfusion:GridTextColumn HeaderText="Perfil" MappingName="Perfil.Nome" />
+                        <syncfusion:GridTextColumn HeaderText="Status" MappingName="Status.Nome" />
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </AdornerDecorator>
+        </GroupBox>
+        <Grid
+            x:Name="grdStatus"
+            Grid.Row="3"
+            Margin="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                Grid.Row="0"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}"
+                Value="{Binding ValorProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock
+                x:Name="tblStatus"
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                d:Text="0%"
+                FontSize="12"
+                Foreground="Black"
+                Text="{Binding TextoProgresso, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Visibility="{Binding ProgressoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+
+            <StatusBar Grid.Row="1" Background="LightGray">
+                <TextBlock
+                    x:Name="tblStatusBar"
+                    Foreground="DarkSlateGray"
+                    Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </Grid>
+        <Rectangle
+            Grid.RowSpan="4"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Grid
+            Grid.RowSpan="4"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

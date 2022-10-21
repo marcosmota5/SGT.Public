@@ -1,0 +1,173 @@
+﻿<UserControl
+    x:Class="SGT.Views.ConfirmacaoItensEstoqueView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperclasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    d:Background="LightGray"
+    d:DesignHeight="398"
+    d:DesignWidth="760"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="36" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <TextBlock
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="22"
+                Text="Atenção" />
+            <TextBlock
+                Grid.Row="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="16"
+                Text="Alguns itens foram encontrados apenas através do código abreviado, por isso é necessária a validação manual. Verifique e marque abaixo quais itens da proposta são iguais aos itens encontrados e, após isso, clique em 'Confirmar'."
+                TextWrapping="Wrap" />
+        </Grid>
+        <DataGrid
+            Grid.Row="1"
+            IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding ListaValidacaoItemPropostaEstoque, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn
+                    x:Name="dgtpcConfirmacao"
+                    Width="22"
+                    CanUserResize="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox
+                                x:Name="cbCol"
+                                HorizontalAlignment="Center"
+                                IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    x:Name="dgtcItemProposta"
+                    Binding="{Binding ItemProposta}"
+                    IsReadOnly="True"
+                    Visibility="Collapsed" />
+                <DataGridTextColumn
+                    x:Name="dgtcQuantidadeEstoqueAbreviado"
+                    Binding="{Binding QuantidadeEstoqueAbreviado}"
+                    IsReadOnly="True"
+                    Visibility="Collapsed" />
+                <DataGridTextColumn
+                    x:Name="dgtcTextoItemProposta"
+                    MaxWidth="310"
+                    Binding="{Binding TextoItemProposta}"
+                    Header="Item da proposta"
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn
+                    x:Name="dgtcItemEncontrado"
+                    MaxWidth="310"
+                    Binding="{Binding TextoEncontrado}"
+                    Header="Item encontrado"
+                    IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Button
+                x:Name="btnCancelar"
+                Grid.Column="1"
+                Margin="2"
+                VerticalAlignment="Center"
+                Command="{Binding ComandoFechar}"
+                IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Red"
+                        Kind="Cancel" />
+                    <TextBlock Grid.Column="1">Cancelar</TextBlock>
+                </Grid>
+            </Button>
+            <Button
+                x:Name="btnSalvar"
+                Grid.Column="2"
+                Margin="2"
+                VerticalAlignment="Center"
+                Command="{Binding ComandoConfirmar}"
+                IsEnabled="{Binding ControlesHabilitados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="DarkGreen"
+                        Kind="Check" />
+                    <TextBlock Grid.Column="1">Confirmar</TextBlock>
+                </Grid>
+            </Button>
+        </Grid>
+        <Rectangle
+            Grid.RowSpan="3"
+            d:Visibility="Collapsed"
+            Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Grid
+            Grid.RowSpan="3"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            d:Visibility="Collapsed"
+            Visibility="{Binding CarregamentoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+            <mah:ProgressRing Grid.Row="0" />
+            <TextBlock
+                Grid.Row="1"
+                Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                Text="Carregando..." />
+        </Grid>
+    </Grid>
+</UserControl>

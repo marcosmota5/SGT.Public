@@ -1,0 +1,199 @@
+﻿<UserControl
+    x:Class="SGT.Views.EsqueciASenhaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    d:DesignHeight="240"
+    d:DesignWidth="280"
+    Unloaded="UserControl_Unloaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <StackPanel
+        x:Name="stpEsqueciASenha"
+        Grid.Row="0"
+        Margin="5,0"
+        VerticalAlignment="Center"
+        Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+        Opacity="1"
+        Orientation="Vertical">
+        <Grid x:Name="grdEsqueciASenha" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <iconPacks:PackIconMaterial
+                x:Name="icoVoltarEsqueciASenha"
+                Grid.Column="0"
+                Width="18"
+                Height="18"
+                VerticalAlignment="Center"
+                Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                Kind="ArrowLeftCircle">
+                <iconPacks:PackIconMaterial.Style>
+                    <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                        <Setter Property="Foreground" Value="Gray" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Accent}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </iconPacks:PackIconMaterial.Style>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding ComandoVoltar}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </iconPacks:PackIconMaterial>
+            <Label
+                x:Name="lblTituloEsqueciASenha"
+                Grid.Column="1"
+                Margin="1,0,0,0"
+                HorizontalAlignment="Center"
+                FontSize="16"
+                FontWeight="Bold">
+                <TextBlock
+                    x:Name="tblTituloEsqueciASenha"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap">
+                    Recuperação de senha
+                </TextBlock>
+            </Label>
+        </Grid>
+        <Grid Margin="10,0,10,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Email" />
+            <TextBox
+                x:Name="tboEmailRecuperacao"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                mah:TextBoxHelper.IsWaitingForData="True"
+                mah:TextBoxHelper.UseFloatingWatermark="True"
+                mah:TextBoxHelper.Watermark="E-mail"
+                mah:TextBoxHelper.WatermarkAlignment="Right"
+                IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Text>
+                    <Binding
+                        Mode="TwoWay"
+                        Path="EnderecoEmail"
+                        UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <regras:RegraCampoInvalido />
+                            <regras:RegraCampoVazio />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding Path=ComandoEnviarEmailCodigoRecuperacao}" />
+                </TextBox.InputBindings>
+            </TextBox>
+        </Grid>
+        <Label
+            x:Name="lblTempoEnviarNovamente"
+            Margin="10,0"
+            Content="{Binding TextoAguarde, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            FontSize="10"
+            Visibility="{Binding Path=TempoEsperaVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+        <Button
+            x:Name="btnEnviarCodigoRecuperacao"
+            Height="32"
+            Margin="10,10"
+            Command="{Binding ComandoEnviarEmailCodigoRecuperacao}"
+            IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="24" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <iconPacks:PackIconMaterial
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                    Kind="EmailSend" />
+                <TextBlock Grid.Column="1" FontSize="12">Enviar código de recuperação</TextBlock>
+            </Grid>
+        </Button>
+        <Grid
+            x:Name="grdCodigoRecuperacao"
+            Margin="10,20,10,2"
+            Visibility="{Binding Path=CodigoRecuperacaoVisivel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Row="0"
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Numeric" />
+            <TextBox
+                x:Name="tboCodigoRecuperacao"
+                Grid.Row="0"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                mah:TextBoxHelper.IsWaitingForData="True"
+                mah:TextBoxHelper.UseFloatingWatermark="True"
+                mah:TextBoxHelper.Watermark="Código recebido"
+                mah:TextBoxHelper.WatermarkAlignment="Right"
+                MaxLength="6">
+                <TextBox.Text>
+                    <Binding
+                        Mode="TwoWay"
+                        Path="CodigoRecuperacaoInformado"
+                        UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <regras:RegraCampoVazio />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding Path=ComandoConfirmarCodigoRecuperacao}" />
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button
+                x:Name="btnConfirmarCodigoRecuperacao"
+                Grid.Row="1"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Height="32"
+                Margin="0,10"
+                Command="{Binding ComandoConfirmarCodigoRecuperacao}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                        Kind="Check" />
+                    <TextBlock Grid.Column="1" FontSize="12">Confirmar</TextBlock>
+                </Grid>
+            </Button>
+        </Grid>
+    </StackPanel>
+</UserControl>

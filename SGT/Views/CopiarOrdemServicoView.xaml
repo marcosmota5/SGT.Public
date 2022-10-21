@@ -1,0 +1,572 @@
+﻿<UserControl
+    x:Class="SGT.Views.CopiarOrdemServicoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:proxies="clr-namespace:SGT.Proxies"
+    xmlns:regras="clr-namespace:SGT.Regras"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    x:Name="ctl"
+    d:DesignHeight="468"
+    d:DesignWidth="758"
+    mah:DialogParticipation.Register="{Binding}"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:StringToUpperConverter x:Key="StringToUpperConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{StaticResource MahApps.Brushes.Accent}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <Label
+                Grid.Column="0"
+                d:Content="Nome"
+                Content="{Binding Name, Converter={StaticResource StringToUpperConverter}}"
+                Foreground="White" />
+            <Button
+                Grid.Column="1"
+                Padding="0"
+                Command="{Binding ComandoFechar}">
+                <iconPacks:PackIconMaterial
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    Kind="Close" />
+                <Button.Style>
+                    <Style BasedOn="{StaticResource MahApps.Styles.Button.Flat}" TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Red" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
+            <Grid x:Name="grpControleItem" Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <GroupBox
+                    x:Name="grpControles"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="2"
+                    Header="Geral">
+                    <AdornerDecorator x:Name="adControles">
+                        <Grid x:Name="grdControles">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <CheckBox
+                                Grid.Row="0"
+                                Margin="2"
+                                Content="Dados da ordem de serviço"
+                                IsChecked="{Binding DadosOrdemServico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Campos: Tipo, Status"
+                                Visibility="{c:Binding EhParaOrdemServico,
+                                                       Mode=OneWay,
+                                                       UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid
+                                Grid.Row="1"
+                                Margin="2"
+                                Visibility="{c:Binding EhParaOrdemServico,
+                                                       Mode=OneWay,
+                                                       UpdateSourceTrigger=PropertyChanged}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="25" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="25"
+                                    Foreground="Gray"
+                                    Text="└" />
+                                <CheckBox
+                                    Grid.Column="1"
+                                    Content="Usar como primária"
+                                    IsChecked="{Binding UsarComoPrimaria, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding DadosOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ToolTip="Marque aqui para usar essa ordem de serviço no campo OS Primária"
+                                    ToolTipService.ShowOnDisabled="True" />
+                            </Grid>
+                            <CheckBox
+                                Grid.Row="2"
+                                Margin="2"
+                                Content="Dados do chamado"
+                                IsChecked="{Binding DadosChamado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="{c:Binding 'EhParaOrdemServico ? &quot;Campos: Número, Data do chamado&quot; : &quot;Campos: Data do chamado (para Data da solicitação)&quot; ',
+                                                    Mode=OneWay,
+                                                    UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="{c:Binding 'EhParaOrdemServico ? 1 : 0',
+                                                        Mode=OneWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                Margin="2"
+                                d:Grid.Column="1"
+                                Content="Dados do cliente"
+                                IsChecked="{Binding DadosCliente, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="{c:Binding 'EhParaOrdemServico ? &quot;Campos: Cliente, Planta, Área, Frota, Data do atendimento&quot; : &quot;Campos: Cliente, Status&quot; ',
+                                                    Mode=OneWay,
+                                                    UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="1"
+                                Grid.Column="{c:Binding 'EhParaOrdemServico ? 1 : 0',
+                                                        Mode=OneWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                Margin="2"
+                                d:Grid.Column="1"
+                                Content="Dados do equipamento"
+                                IsChecked="{Binding DadosEquipamento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="{c:Binding 'EhParaOrdemServico ? &quot;Campos: Série, Fabricante, Categoria, Tipo, Classe, Modelo, Ano, Mastro, Nº falha&quot; : &quot;Campos: Ordem de serviço, Série, Fabricante, Categoria, Tipo, Classe, Modelo, Ano, Horímetro&quot; ',
+                                                    Mode=OneWay,
+                                                    UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                Margin="2"
+                                Content="Status do equipamento"
+                                IsChecked="{Binding DadosStatusEquipamento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Campos: Equipamento operacional, Horímetro, Equipamento após a manutenção, Tipo da manutenção"
+                                Visibility="{c:Binding EhParaOrdemServico,
+                                                       Mode=OneWay,
+                                                       UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                Margin="2"
+                                Content="Descrição do atendimento"
+                                IsChecked="{Binding DadosDescricaoAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Campos: Motivo do atendimento, Entrevista inicial, Intervenção"
+                                Visibility="{c:Binding EhParaOrdemServico,
+                                                       Mode=OneWay,
+                                                       UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="1"
+                                Grid.Column="2"
+                                Margin="2"
+                                Content="Atendimento"
+                                IsChecked="{Binding DadosAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Campos: Data da saída, Data da chegada, Data do retorno, Executante do serviço"
+                                Visibility="{c:Binding EhParaOrdemServico,
+                                                       Mode=OneWay,
+                                                       UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox
+                                Grid.Row="{c:Binding 'EhParaOrdemServico ? 2 : 0',
+                                                     Mode=OneWay,
+                                                     UpdateSourceTrigger=PropertyChanged}"
+                                Grid.Column="{c:Binding 'EhParaOrdemServico ? 2 : 1',
+                                                        Mode=OneWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                Margin="2"
+                                d:Grid.Column="2"
+                                d:Grid.Row="2"
+                                Content="Comentários"
+                                IsChecked="{Binding DadosComentario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ToolTip="Campos: Comentários" />
+                        </Grid>
+                    </AdornerDecorator>
+                </GroupBox>
+                <TabControl
+                    x:Name="tabListas"
+                    Grid.Row="1"
+                    mah:HeaderedControlHelper.HeaderFontSize="16"
+                    mah:TabControlHelper.Underlined="TabPanel"
+                    Style="{DynamicResource MahApps.Styles.TabControl.Animated}">
+                    <mah:MetroTabItem x:Name="tbiPecasInsumos" Header="Peças e Insumos">
+                        <AdornerDecorator>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="180" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Peças disponíveis"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgItensDisponiveis"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaItensOrdemServicoDisponiveis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="ItensDisponiveis_SelectionChanged"
+                                    SelectionMode="Extended"
+                                    SelectionUnit="Row">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridTextColumn HeaderText="Código" MappingName="CodigoItem" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Descrição"
+                                            MappingName="DescricaoItem"
+                                            TextWrapping="Wrap" />
+                                        <syncfusion:GridNumericColumn
+                                            HeaderText="Quantidade"
+                                            MappingName="QuantidadeItem"
+                                            NumberDecimalDigits="2"
+                                            NumberGroupSizes="3" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <Grid
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="5,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Button
+                                        Grid.Row="0"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarTodosItensDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="1"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmItemDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="2"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmItemEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronLeft" />
+                                    </Button>
+                                    <Button Grid.Row="3" Command="{Binding ComandoPassarTodosItensEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleLeft" />
+                                    </Button>
+                                </Grid>
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Peças a copiar"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgItensACopiar"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaItensOrdemServicoACopiar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="ItensACopiar_SelectionChanged"
+                                    SelectionMode="Extended">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridTextColumn HeaderText="Código" MappingName="CodigoItem" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Descrição"
+                                            MappingName="DescricaoItem"
+                                            TextWrapping="Wrap" />
+                                        <syncfusion:GridNumericColumn
+                                            HeaderText="Quantidade"
+                                            MappingName="QuantidadeItem"
+                                            NumberDecimalDigits="2"
+                                            NumberGroupSizes="3" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </mah:MetroTabItem>
+                    <mah:MetroTabItem
+                        x:Name="tbiEventos"
+                        Header="Eventos"
+                        Visibility="{c:Binding EhParaOrdemServico,
+                                               Mode=OneWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <AdornerDecorator>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="180" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Eventos disponíveis"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgEventosDisponiveis"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaEventosOrdemServicoDisponiveis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="EventosDisponiveis_SelectionChanged"
+                                    SelectionMode="Extended"
+                                    SelectionUnit="Row">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de início"
+                                            MappingName="DataInicio"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data fim"
+                                            MappingName="DataFim"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridTextColumn HeaderText="Evento" MappingName="Evento.Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <Grid
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="5,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Button
+                                        Grid.Row="0"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarTodosEventosDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="1"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmEventoDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="2"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmEventoEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronLeft" />
+                                    </Button>
+                                    <Button Grid.Row="3" Command="{Binding ComandoPassarTodosEventosEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleLeft" />
+                                    </Button>
+                                </Grid>
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Eventos a copiar"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgEventosACopiar"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaEventosOrdemServicoACopiar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="EventosACopiar_SelectionChanged"
+                                    SelectionMode="Extended">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data de início"
+                                            MappingName="DataInicio"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridDateTimeColumn
+                                            CustomPattern="dd/MM/yyyy HH:mm"
+                                            HeaderText="Data fim"
+                                            MappingName="DataFim"
+                                            Pattern="CustomPattern" />
+                                        <syncfusion:GridTextColumn HeaderText="Evento" MappingName="Evento.Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </mah:MetroTabItem>
+                    <mah:MetroTabItem
+                        x:Name="tbiInconsistencias"
+                        Header="Inconsistências"
+                        Visibility="{c:Binding EhParaOrdemServico,
+                                               Mode=OneWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <AdornerDecorator>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="20" />
+                                    <RowDefinition Height="180" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Inconsistencias disponíveis"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgInconsistenciasDisponiveis"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaInconsistenciasOrdemServicoDisponiveis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="InconsistenciasDisponiveis_SelectionChanged"
+                                    SelectionMode="Extended"
+                                    SelectionUnit="Row">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridTextColumn HeaderText="Inconsistência" MappingName="Inconsistencia.Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <Grid
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Margin="5,0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Button
+                                        Grid.Row="0"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarTodosInconsistenciasDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="1"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmInconsistenciaDireita}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronRight" />
+                                    </Button>
+                                    <Button
+                                        Grid.Row="2"
+                                        Margin="0,0,0,2"
+                                        Command="{Binding ComandoPassarUmInconsistenciaEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronLeft" />
+                                    </Button>
+                                    <Button Grid.Row="3" Command="{Binding ComandoPassarTodosInconsistenciasEsquerda}">
+                                        <iconPacks:PackIconMaterial Foreground="Gray" Kind="ChevronDoubleLeft" />
+                                    </Button>
+                                </Grid>
+                                <TextBlock
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                    Text="Inconsistências a copiar"
+                                    TextWrapping="Wrap" />
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdgInconsistenciasACopiar"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    ItemsSource="{Binding ListaInconsistenciasOrdemServicoACopiar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                    SelectionChanged="InconsistenciasACopiar_SelectionChanged"
+                                    SelectionMode="Extended">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridTextColumn HeaderText="Inconsistência" MappingName="Inconsistencia.Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                            </Grid>
+                        </AdornerDecorator>
+                    </mah:MetroTabItem>
+                </TabControl>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        x:Name="btnCancelar"
+                        Grid.Column="1"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        Command="{Binding ComandoFechar}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <iconPacks:PackIconMaterial
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Foreground="Red"
+                                Kind="Cancel" />
+                            <TextBlock Grid.Column="1">Cancelar</TextBlock>
+                        </Grid>
+                    </Button>
+                    <mah:Badged
+                        x:Name="bdgSalvar"
+                        Grid.Column="2"
+                        Margin="2"
+                        Badge=""
+                        BadgeBackground="Red">
+                        <Button
+                            x:Name="btnSalvar"
+                            VerticalAlignment="Center"
+                            Command="{Binding ComandoConfirmar}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <iconPacks:PackIconMaterial
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Foreground="DarkGreen"
+                                    Kind="Check" />
+                                <TextBlock Grid.Column="1">Confirmar</TextBlock>
+                            </Grid>
+                        </Button>
+                    </mah:Badged>
+                </Grid>
+            </Grid>
+            <StatusBar
+                Name="stbStatus"
+                Grid.Row="1"
+                Background="LightGray">
+                <TextBlock
+                    x:Name="tblStatus"
+                    Foreground="DarkSlateGray"
+                    Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </Grid>
+    </Grid>
+</UserControl>

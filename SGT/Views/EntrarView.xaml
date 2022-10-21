@@ -1,0 +1,149 @@
+﻿<UserControl
+    x:Class="SGT.Views.EntrarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    d:DesignHeight="220"
+    d:DesignWidth="280"
+    mc:Ignorable="d">
+    <UserControl.DataContext>
+        <viewmodels:EntrarViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+    <StackPanel
+        x:Name="stpLogin"
+        Grid.Row="0"
+        Margin="5,0"
+        VerticalAlignment="Center"
+        Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+        Opacity="1"
+        Orientation="Vertical">
+        <Grid Margin="10,20,10,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Account" />
+            <TextBox
+                x:Name="tboLoginEmail"
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                mah:TextBoxHelper.IsWaitingForData="True"
+                mah:TextBoxHelper.UseFloatingWatermark="True"
+                mah:TextBoxHelper.Watermark="Login ou e-mail"
+                mah:TextBoxHelper.WatermarkAlignment="Right"
+                IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding LoginOuEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
+        <Grid Margin="10,10,10,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="24" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <iconPacks:PackIconMaterial
+                Grid.Row="0"
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Foreground="Gray"
+                Kind="Key" />
+            <PasswordBox
+                x:Name="pboSenha"
+                Grid.Row="0"
+                Grid.Column="1"
+                mah:PasswordBoxHelper.CapsLockWarningToolTip="Caps lock está ativado"
+                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                mah:TextBoxHelper.IsWaitingForData="True"
+                mah:TextBoxHelper.UseFloatingWatermark="True"
+                mah:TextBoxHelper.Watermark="Senha"
+                IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                MaxLength="32"
+                PasswordChanged="PasswordBox_PasswordChanged"
+                Style="{mah:StaticResource ResourceKey=MahApps.Styles.PasswordBox.Button.Revealed}">
+                <PasswordBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding Path=ComandoEntrar}" />
+                </PasswordBox.InputBindings>
+            </PasswordBox>
+            <TextBlock
+                x:Name="tblEsqueciASenha"
+                Grid.Row="1"
+                Grid.Column="1"
+                IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <Hyperlink Command="{Binding ComandoEsqueciASenha}" KeyboardNavigation.IsTabStop="False">
+                    Esqueci a senha
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
+        <CheckBox
+            x:Name="chbLembrarUsuario"
+            Margin="10,5"
+            Content="Lembrar usuário"
+            IsChecked="{Binding LembrarUsuario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            IsEnabled="{Binding ControleHabilitado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <Grid>
+            <Button
+                x:Name="btnEntrar"
+                Height="48"
+                Margin="10,10"
+                Command="{Binding ComandoEntrar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                        Kind="Login" />
+                    <TextBlock Grid.Column="1" FontSize="16">Entrar</TextBlock>
+                </Grid>
+            </Button>
+            <Button
+                x:Name="btnCancelar"
+                Height="48"
+                Margin="10,10"
+                d:Visibility="Collapsed"
+                Command="{Binding ComandoCancelar}"
+                Visibility="{Binding Path=CancelarVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Red"
+                        Kind="Cancel" />
+                    <TextBlock Grid.Column="1" FontSize="16">Cancelar</TextBlock>
+                </Grid>
+            </Button>
+        </Grid>
+
+        <mah:MetroProgressBar
+            x:Name="pgbEntrar"
+            Margin="10,20"
+            IsIndeterminate="True"
+            Maximum="100"
+            Minimum="0"
+            Visibility="Collapsed" />
+
+    </StackPanel>
+</UserControl>

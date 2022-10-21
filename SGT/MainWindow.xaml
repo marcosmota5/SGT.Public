@@ -1,0 +1,83 @@
+﻿<mah:MetroWindow
+    x:Class="SGT.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SGT"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    xmlns:views="clr-namespace:SGT.Views"
+    Title="SGT"
+    Width="{Binding LarguraJanela, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+    Height="{Binding AlturaJanela, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+    d:Height="720"
+    d:Width="1280"
+    Closed="MetroWindow_Closed"
+    Icon="Imagens/sgt_new_icon.ico"
+    SizeChanged="MetroWindow_SizeChanged"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+            <views:LoginView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:PrincipalViewModel}">
+            <views:PrincipalView />
+        </DataTemplate>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+    </Window.Resources>
+
+    <Grid IsEnabled="{Binding FundoVisivel, Converter={StaticResource inverseBooleanConverter}}">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="{Binding AlturaGrid, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" d:Height="35" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0">
+            <mah:TransitioningContentControl
+                x:Name="tccConteudo"
+                Content="{Binding CurrentPageViewModel}"
+                Transition="Left" />
+        </DockPanel>
+
+        <!--  Barra de status contendo uma barra de progresso e um texto  -->
+        <Border
+            Grid.Row="1"
+            BorderBrush="SlateGray"
+            BorderThickness="0,1,0,0">
+            <StackPanel x:Name="grdBarraDeStatus" Background="LightGray">
+                <mah:MetroProgressBar
+                    x:Name="pgbProgresso"
+                    Height="10"
+                    IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Maximum="100"
+                    Minimum="0"
+                    Visibility="{Binding Path=ProgressoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}"
+                    Value="{Binding ValorProgresso}" />
+                <StatusBar Name="stbStatus" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
+                    <TextBlock
+                        x:Name="tblStatus"
+                        Foreground="Black"
+                        Text="{Binding MensagemStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StatusBar>
+            </StackPanel>
+        </Border>
+
+        <Grid
+            Grid.RowSpan="2"
+            d:Visibility="Collapsed"
+            Visibility="{Binding Path=FundoVisivel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}">
+            <Grid.Background>
+                <SolidColorBrush Opacity="0.4" Color="Black" />
+            </Grid.Background>
+            <Label
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                d:Content="Operação em outra janela"
+                Background="Black"
+                Content="{Binding TextoFundo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Foreground="White" />
+        </Grid>
+    </Grid>
+</mah:MetroWindow>

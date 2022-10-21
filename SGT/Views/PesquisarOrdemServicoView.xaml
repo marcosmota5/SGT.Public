@@ -1,0 +1,1481 @@
+﻿<UserControl
+    x:Class="SGT.Views.PesquisarOrdemServicoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:SGT.Behaviors"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:converters="clr-namespace:SGT.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:proxies="clr-namespace:SGT.Proxies"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:viewmodels="clr-namespace:SGT.ViewModels"
+    xmlns:views="clr-namespace:SGT.Views"
+    d:DesignHeight="720"
+    d:DesignWidth="1280"
+    mah:DialogParticipation.Register="{Binding}"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    Loaded="UserControl_Loaded"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BooleanAndConverter x:Key="booleanAndConverter" />
+        <converters:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+    </UserControl.Resources>
+    <Grid Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding ElementName=grpOpcoes, Path=Height}" d:Height="140" />
+            <RowDefinition />
+            <RowDefinition Height="28" />
+        </Grid.RowDefinitions>
+        <Expander
+            x:Name="grpOpcoes"
+            Grid.Row="0"
+            Grid.Column="0"
+            Margin="2"
+            FlowDirection="RightToLeft"
+            IsExpanded="True">
+            <Expander.Header>
+                <Grid FlowDirection="LeftToRight">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        FontSize="12"
+                        Foreground="White"
+                        Text="OPÇÕES" />
+                </Grid>
+            </Expander.Header>
+            <Grid FlowDirection="LeftToRight">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="165" />
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="125" />
+                        <ColumnDefinition Width="125" />
+                    </Grid.ColumnDefinitions>
+                    <mah:ToggleSwitch
+                        x:Name="tgsModoAvancado"
+                        MinWidth="0"
+                        Content="Modo avançado"
+                        IsOn="{c:Binding '!PesquisaBasica',
+                                         Mode=TwoWay,
+                                         UpdateSourceTrigger=PropertyChanged}"
+                        ToolTip="Marque aqui para efetuar uma pesquisa com diversos parâmetros" />
+                    <TextBox
+                        x:Name="txtPesquisa"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="4"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        d:Visibility="Visible"
+                        mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Texto a ser pesquisado"
+                        mah:TextBoxHelper.WatermarkAlignment="Right"
+                        Text="{Binding TextoPesquisado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ToolTip="Campos pesquisados: Ordem de serviço atual, ordem de serviço primária, número do chamado, cliente, executante do serviço, filial, fabricante, tipo do equipamento, modelo e série"
+                        Visibility="{c:Binding 'PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding Path=ComandoPesquisar}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <ComboBox
+                        x:Name="cboParametro"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Parâmetro"
+                        ItemsSource="{Binding ListaParametros, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        SelectedItem="{Binding ParametroSelecionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{c:Binding '!PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="25" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                        Kind="{Binding Icone}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Nome}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid
+                        x:Name="grdPesquisaData"
+                        Grid.Column="2"
+                        d:Visibility="Collapsed"
+                        Visibility="{c:Binding 'PesquisaDataVisivel and !PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <DatePicker
+                            x:Name="datDe"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="De"
+                            DisplayDateEnd="{Binding DataAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataDe}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                        <DatePicker
+                            x:Name="datAte"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Até"
+                            DisplayDateStart="{Binding DataDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAte}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                    </Grid>
+                    <Grid
+                        x:Name="grdTexto"
+                        Grid.Column="2"
+                        d:Visibility="Collapsed"
+                        Visibility="{c:Binding 'PesquisaTextoVisivel and !PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox
+                            x:Name="cboOpcaoPesquisa"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.IsWaitingForData="True"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Opção de busca"
+                            ItemsSource="{Binding ListaOpcaoPesquisa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding OpcaoPesquisaSelecionada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="25" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <iconPacks:PackIconMaterial
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{Binding Cor}"
+                                            Kind="{Binding Icone}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Nome}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox
+                            x:Name="cboTextoPesquisa"
+                            Grid.Column="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=Text.Length, Mode=OneWay}"
+                            mah:TextBoxHelper.IsWaitingForData="True"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Texto a ser buscado"
+                            DisplayMemberPath="TextoRetornado"
+                            IsEditable="True"
+                            ItemsSource="{Binding ListaTextoPesquisa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            MaxDropDownHeight="125"
+                            Style="{DynamicResource MahApps.Styles.ComboBox.Virtualized}"
+                            Text="{Binding TextoPesquisa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <Grid
+                        x:Name="grdPesquisaDecimal"
+                        Grid.Column="4"
+                        d:Visibility="Collapsed"
+                        Visibility="{c:Binding 'PesquisaDecimalVisivel and !PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <mah:NumericUpDown
+                            x:Name="nudDecimalDe"
+                            Grid.Column="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Stretch"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="De"
+                            mah:TextBoxHelper.WatermarkAlignment="Left"
+                            Culture="pt-BR"
+                            DecimalPointCorrection="Currency"
+                            HideUpDownButtons="True"
+                            InterceptArrowKeys="False"
+                            InterceptManualEnter="True"
+                            InterceptMouseWheel="False"
+                            Maximum="{Binding DecimalAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            NumericInputMode="Decimal"
+                            StringFormat="{Binding ParametroSelecionado.Formato, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SwitchUpDownButtons="False"
+                            Value="{Binding DecimalDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <mah:NumericUpDown
+                            x:Name="nudDecimalAte"
+                            Grid.Column="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Stretch"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Até"
+                            mah:TextBoxHelper.WatermarkAlignment="Left"
+                            Culture="pt-BR"
+                            DecimalPointCorrection="Currency"
+                            HideUpDownButtons="True"
+                            InterceptArrowKeys="False"
+                            InterceptManualEnter="True"
+                            InterceptMouseWheel="False"
+                            Minimum="{Binding DecimalDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            NumericInputMode="Decimal"
+                            StringFormat="{Binding ParametroSelecionado.Formato, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SwitchUpDownButtons="False"
+                            Value="{Binding DecimalAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <Grid
+                        x:Name="grdPesquisaInteger"
+                        Grid.Column="2"
+                        d:Visibility="Collapsed"
+                        Visibility="{c:Binding 'PesquisaIntegerVisivel and !PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <mah:NumericUpDown
+                            x:Name="nudIntegerDe"
+                            Grid.Column="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Stretch"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="De"
+                            mah:TextBoxHelper.WatermarkAlignment="Left"
+                            Culture="pt-BR"
+                            DecimalPointCorrection="Currency"
+                            HideUpDownButtons="True"
+                            InterceptArrowKeys="False"
+                            InterceptManualEnter="True"
+                            InterceptMouseWheel="False"
+                            Maximum="{Binding IntegerAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            NumericInputMode="Decimal"
+                            StringFormat="{Binding ParametroSelecionado.Formato, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SwitchUpDownButtons="False"
+                            Value="{Binding IntegerDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <mah:NumericUpDown
+                            x:Name="nudIntegerAte"
+                            Grid.Column="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Stretch"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Até"
+                            mah:TextBoxHelper.WatermarkAlignment="Left"
+                            Culture="pt-BR"
+                            DecimalPointCorrection="Currency"
+                            HideUpDownButtons="True"
+                            InterceptArrowKeys="False"
+                            InterceptManualEnter="True"
+                            InterceptMouseWheel="False"
+                            Minimum="{Binding IntegerDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            NumericInputMode="Decimal"
+                            StringFormat="{Binding ParametroSelecionado.Formato, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SwitchUpDownButtons="False"
+                            Value="{Binding IntegerAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <StackPanel
+                        x:Name="grdPesquisaBoolean"
+                        Grid.Column="2"
+                        Margin="10,0"
+                        d:Visibility="Collapsed"
+                        Orientation="Horizontal"
+                        Visibility="{c:Binding 'PesquisaBooleanVisivel and !PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <RadioButton
+                            x:Name="rdbPesquisaBoolean1"
+                            Width="100"
+                            Margin="2"
+                            Content="Sim"
+                            GroupName="PesquisaBoolean"
+                            IsChecked="{Binding BooleanValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <RadioButton
+                            x:Name="rdbPesquisaBoolean2"
+                            Width="100"
+                            Margin="2"
+                            Content="Não"
+                            GroupName="PesquisaBoolean"
+                            IsChecked="{c:Binding !BooleanValue,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <ComboBox
+                        x:Name="cboOperador"
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        d:Visibility="Collapsed"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Operador"
+                        DisplayMemberPath="Nome"
+                        ItemsSource="{Binding ListaOperadores, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        SelectedItem="{Binding OperadorSelecionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Visibility="{c:Binding '!PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}" />
+                    <Button
+                        x:Name="btnAdicionar"
+                        Grid.Column="4"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        d:Visibility="Collapsed"
+                        Command="{Binding ComandoAdicionarFiltro}"
+                        Visibility="{c:Binding '!PesquisaBasica',
+                                               Mode=TwoWay,
+                                               UpdateSourceTrigger=PropertyChanged}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <iconPacks:PackIconMaterial
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                Kind="Plus" />
+                            <TextBlock Grid.Column="1">Adicionar</TextBlock>
+                        </Grid>
+                    </Button>
+                    <Button
+                        x:Name="btnPesquisar"
+                        Grid.Row="0"
+                        Grid.Column="5"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        Click="btnPesquisar_Click"
+                        Command="{Binding ComandoPesquisar}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <iconPacks:PackIconMaterial
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                Kind="DatabaseSearch" />
+                            <TextBlock Grid.Column="1">Pesquisar</TextBlock>
+                        </Grid>
+                    </Button>
+                </Grid>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320" />
+                        <ColumnDefinition Width="300" />
+                        <ColumnDefinition Width="150" />
+                    </Grid.ColumnDefinitions>
+                    <CheckBox
+                        x:Name="chkConsideraApenasAtivos"
+                        Grid.Column="0"
+                        IsChecked="{Binding ConsideraApenasAtivos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        Considerar apenas registros ativos
+                    </CheckBox>
+                    <ComboBox
+                        x:Name="cboClassificarPor"
+                        Grid.Column="1"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Classificar por"
+                        ItemsSource="{Binding ListaClassificarPor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        SelectedItem="{Binding ClassificarPorSelecionado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="25" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                        Kind="{Binding Icone}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Nome}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ComboBox
+                        x:Name="cboOrdem"
+                        Grid.Column="2"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        mah:TextBoxHelper.IsWaitingForData="True"
+                        mah:TextBoxHelper.UseFloatingWatermark="True"
+                        mah:TextBoxHelper.Watermark="Ordem"
+                        ItemsSource="{Binding ListaOrdem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        SelectedItem="{Binding OrdemSelecionada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="25" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <iconPacks:PackIconMaterial
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                        Kind="{Binding Icone}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Nome}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Grid>
+            </Grid>
+        </Expander>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{c:Binding FilterSize, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" d:Width="350" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <GroupBox
+                x:Name="grpFiltros"
+                Grid.Column="0"
+                Margin="2"
+                Visibility="{c:Binding FilterVisible,
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <GroupBox.Header>
+                    <Grid>
+                        <TextBlock
+                            x:Name="txbFilters"
+                            Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"
+                            Text="FILTROS" />
+                        <Rectangle
+                            x:Name="rctFilters"
+                            Margin="-4"
+                            Fill="Transparent">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding ComandoAlterarTamanhoFiltro}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Rectangle>
+                    </Grid>
+                </GroupBox.Header>
+                <AdornerDecorator x:Name="adFiltros">
+                    <Grid>
+                        <ScrollViewer d:Visibility="Visible" Visibility="{c:Binding PesquisaBasica, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                            <StackPanel>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdSetor"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelSetores, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Setor"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdUsuario"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelUsuariosInsercao, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Usuário de inserção"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdCliente"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelClientes, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Cliente"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdTipoOrdemServico"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelTipoOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Tipo da ordem de serviço"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdEquipamentoAposManutencao"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelEquipamentoAposManutencao, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Equipamento após a manutenção"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdTipoManutencao"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelTipoManutencao, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Tipo da manutenção"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdExecutanteServico"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelExecutanteServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Executante do serviço"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <syncfusion:SfDataGrid
+                                    x:Name="sfdPassosExecutados"
+                                    MaxHeight="100"
+                                    Margin="2"
+                                    AllowDraggingColumns="True"
+                                    AllowEditing="False"
+                                    AllowFiltering="True"
+                                    AutoGenerateColumns="False"
+                                    BorderThickness="1"
+                                    ColumnSizer="Star"
+                                    GridLinesVisibility="None"
+                                    HeaderLinesVisibility="None"
+                                    HeaderRowHeight="26"
+                                    ItemsSource="{Binding ListaObjetoSelecionavelPassosExecutados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LiveDataUpdateMode="AllowDataShaping"
+                                    SelectionMode="Multiple">
+                                    <syncfusion:SfDataGrid.Columns>
+                                        <syncfusion:GridCheckBoxSelectorColumn
+                                            Width="28"
+                                            HorizontalAlignment="Center"
+                                            AllowCheckBoxOnHeader="True"
+                                            AllowFiltering="False"
+                                            AllowResizing="False"
+                                            AllowSorting="False"
+                                            MappingName="Selecionado" />
+                                        <syncfusion:GridTextColumn
+                                            HeaderText="Passos executados"
+                                            HorizontalHeaderContentAlignment="Left"
+                                            MappingName="Nome" />
+                                    </syncfusion:SfDataGrid.Columns>
+                                </syncfusion:SfDataGrid>
+                                <GroupBox Margin="2">
+                                    <GroupBox.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="24" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Foreground="White"
+                                                Text="Data do chamado" />
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Background="{DynamicResource MahApps.Brushes.Accent4}"
+                                                Kind="FilterRemove"
+                                                ToolTip="Limpar filtro">
+                                                <iconPacks:PackIconMaterial.Style>
+                                                    <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.SemiTransparent}" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </iconPacks:PackIconMaterial.Style>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                        <i:InvokeCommandAction Command="{Binding ComandoLimparFiltroDataChamado}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </iconPacks:PackIconMaterial>
+                                        </Grid>
+                                    </GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="De"
+                                            DisplayDateEnd="{Binding DataAteChamado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataDeChamado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataDeChamado}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="Até"
+                                            DisplayDateStart="{Binding DataDeChamado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataAteChamado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAteChamado}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Margin="2">
+                                    <GroupBox.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="24" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Foreground="White"
+                                                Text="Data do atendimento" />
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Background="{DynamicResource MahApps.Brushes.Accent4}"
+                                                Kind="FilterRemove"
+                                                ToolTip="Limpar filtro">
+                                                <iconPacks:PackIconMaterial.Style>
+                                                    <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.SemiTransparent}" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </iconPacks:PackIconMaterial.Style>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                        <i:InvokeCommandAction Command="{Binding ComandoLimparFiltroDataAtendimento}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </iconPacks:PackIconMaterial>
+                                        </Grid>
+                                    </GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="De"
+                                            DisplayDateEnd="{Binding DataAteAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataDeAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataDeAtendimento}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="Até"
+                                            DisplayDateStart="{Binding DataDeAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataAteAtendimento, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAteAtendimento}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Margin="2">
+                                    <GroupBox.Header>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="24" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Foreground="White"
+                                                Text="Data da inserção" />
+                                            <iconPacks:PackIconMaterial
+                                                Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Background="{DynamicResource MahApps.Brushes.Accent4}"
+                                                Kind="FilterRemove"
+                                                ToolTip="Limpar filtro">
+                                                <iconPacks:PackIconMaterial.Style>
+                                                    <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.SemiTransparent}" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </iconPacks:PackIconMaterial.Style>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                        <i:InvokeCommandAction Command="{Binding ComandoLimparFiltroDataInsercao}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </iconPacks:PackIconMaterial>
+                                        </Grid>
+                                    </GroupBox.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="De"
+                                            DisplayDateEnd="{Binding DataAteInsercao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataDeInsercao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataDeInsercao}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                        <DatePicker
+                                            MaxWidth="125"
+                                            Margin="2"
+                                            VerticalAlignment="Center"
+                                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                                            mah:TextBoxHelper.Watermark="Até"
+                                            DisplayDateStart="{Binding DataDeInsercao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsTodayHighlighted="True"
+                                            SelectedDate="{Binding DataAteInsercao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedDateFormat="Short">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="LostFocus">
+                                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAteInsercao}" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </DatePicker>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <StackPanel
+                            d:Visibility="Collapsed"
+                            Orientation="Vertical"
+                            Visibility="{c:Binding '!PesquisaBasica',
+                                                   Mode=OneWay,
+                                                   UpdateSourceTrigger=PropertyChanged}">
+                            <Expander
+                                x:Name="expFiltrosSalvos"
+                                Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                                FlowDirection="RightToLeft"
+                                IsExpanded="False">
+                                <Expander.Header>
+                                    <Grid FlowDirection="LeftToRight">
+                                        <TextBlock
+                                            HorizontalAlignment="Left"
+                                            FontSize="12"
+                                            Foreground="White"
+                                            Text="SALVOS" />
+                                    </Grid>
+                                </Expander.Header>
+                                <Grid>
+                                    <StackPanel Orientation="Vertical">
+                                        <Grid FlowDirection="LeftToRight">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="90" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox
+                                                x:Name="txtNomeFiltro"
+                                                Grid.Column="0"
+                                                Margin="0,2"
+                                                VerticalAlignment="Center"
+                                                mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                                                mah:TextBoxHelper.UseFloatingWatermark="True"
+                                                mah:TextBoxHelper.Watermark="Nome"
+                                                mah:TextBoxHelper.WatermarkAlignment="Right"
+                                                IsEnabled="{Binding EdicaoNaoEhEnterprise, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource inverseBooleanConverter}}"
+                                                Text="{Binding NomeNovoFiltroUsuario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Button
+                                                x:Name="btnSalvarFiltro"
+                                                Grid.Column="1"
+                                                Margin="2"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding ComandoSalvarFiltros}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource booleanAndConverter}">
+                                                        <Binding ElementName="txtNomeFiltro" Path="Text.Length" />
+                                                        <Binding ElementName="dtgFiltros" Path="HasItems" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="24" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <iconPacks:PackIconMaterial
+                                                        Grid.Column="0"
+                                                        VerticalAlignment="Center"
+                                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                        Kind="ContentSave" />
+                                                    <TextBlock Grid.Column="1">Salvar</TextBlock>
+                                                </Grid>
+                                            </Button>
+                                        </Grid>
+                                        <DataGrid
+                                            MaxHeight="120"
+                                            AutoGenerateColumns="False"
+                                            CanUserAddRows="False"
+                                            EnableColumnVirtualization="True"
+                                            EnableRowVirtualization="True"
+                                            FlowDirection="LeftToRight"
+                                            IsEnabled="{Binding EdicaoEhEnterprise, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsReadOnly="True"
+                                            ItemsSource="{Binding ListaFiltroUsuario, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                            Language="pt-BR">
+                                            <DataGrid.Resources>
+                                                <proxies:BindingProxy x:Key="proxy" Data="{Binding}" />
+                                            </DataGrid.Resources>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn
+                                                    Width="*"
+                                                    Binding="{Binding Nome}"
+                                                    Header="Nome" />
+                                                <DataGridTextColumn Binding="{Binding DataCriacao}" Header="Data de criação" />
+                                                <DataGridTemplateColumn Width="24" CanUserResize="False">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Button
+                                                                x:Name="btnCarregar"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Command="{Binding Path=Data.ComandoCarregarFiltro, Source={StaticResource proxy}}"
+                                                                CommandParameter="{Binding}"
+                                                                Cursor="Hand"
+                                                                Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                                                ToolTip="Clique aqui para carregar o filtro salvo e executar a pesquisa">
+                                                                <iconPacks:PackIconMaterial
+                                                                    Grid.Column="0"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="Green"
+                                                                    Kind="DownloadMultiple" />
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTemplateColumn Width="24" CanUserResize="False">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Button
+                                                                x:Name="btnDeletar"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Command="{Binding Path=Data.ComandoDeletarFiltro, Source={StaticResource proxy}}"
+                                                                CommandParameter="{Binding}"
+                                                                Cursor="Hand"
+                                                                Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+                                                                ToolTip="Clique aqui para deletar o filtro salvo">
+                                                                <iconPacks:PackIconMaterial
+                                                                    Grid.Column="0"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="Red"
+                                                                    Kind="Delete" />
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </StackPanel>
+                                    <Rectangle
+                                        d:Visibility="Collapsed"
+                                        Fill="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                                        Opacity="0.9"
+                                        Visibility="{Binding EdicaoNaoEhEnterprise, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        d:Visibility="Collapsed"
+                                        Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+                                        Text="Função disponível apenas na versão Enterprise"
+                                        Visibility="{Binding EdicaoNaoEhEnterprise, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                            </Expander>
+                            <Menu x:Name="mnuMenuPrincipalFiltros" Height="32">
+                                <MenuItem
+                                    x:Name="mniSubirOrdem"
+                                    Command="{Binding ComandoSubirOrdemFiltro}"
+                                    Header="Subir"
+                                    ToolTip="Clique aqui para subir a ordem do parâmetro selecionado">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                            Kind="ArrowUp" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    x:Name="mniDescerrdem"
+                                    Command="{Binding ComandoDescerOrdemFiltro}"
+                                    Header="Descer"
+                                    ToolTip="Clique aqui para descer a ordem do parâmetro selecionado">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                            Kind="ArrowDown" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                                <MenuItem
+                                    x:Name="mniRemover"
+                                    Command="{Binding ComandoRemoverFiltro}"
+                                    Header="Remover"
+                                    ToolTip="Clique aqui para remover o parâmetro selecionado">
+                                    <MenuItem.Icon>
+                                        <iconPacks:PackIconMaterial
+                                            VerticalAlignment="Center"
+                                            Foreground="IndianRed"
+                                            Kind="Minus" />
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </Menu>
+                            <DataGrid
+                                Name="dtgFiltros"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                EnableColumnVirtualization="True"
+                                EnableRowVirtualization="True"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding ListaFiltros, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                                Language="pt-BR"
+                                SelectedItem="{Binding FiltroSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                                SelectionMode="Single">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding TituloColuna}" Header="Parâmetro" />
+                                    <DataGridTextColumn Binding="{Binding TextoFiltro}" Header="Filtro" />
+                                    <DataGridTextColumn Binding="{Binding TituloOperador}" Header="Operador" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Grid>
+                </AdornerDecorator>
+            </GroupBox>
+            <Rectangle
+                x:Name="rctFilters2"
+                Grid.Row="1"
+                Margin="2"
+                d:Visibility="Collapsed"
+                Fill="{DynamicResource MahApps.Brushes.Accent}"
+                Visibility="{c:Binding !FilterVisible,
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding ComandoAlterarTamanhoFiltro}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Rectangle>
+            <Grid
+                Grid.Row="1"
+                Margin="2,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="300" />
+                </Grid.RowDefinitions>
+                <iconPacks:PackIconMaterial
+                    Grid.Row="0"
+                    Margin="2,8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    d:Kind="ChevronLeftCircleOutline"
+                    Background="Transparent"
+                    Kind="{Binding FilterIcon, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                    <iconPacks:PackIconMaterial.Style>
+                        <Style TargetType="{x:Type iconPacks:PackIconMaterial}">
+                            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.IdealForeground}" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=rctFilters}" Value="True">
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=rctFilters2}" Value="True">
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=txbFilters2}" Value="True">
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </iconPacks:PackIconMaterial.Style>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                            <i:InvokeCommandAction Command="{Binding ComandoAlterarTamanhoFiltro}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </iconPacks:PackIconMaterial>
+                <TextBlock
+                    x:Name="txbFilters2"
+                    Grid.Row="1"
+                    Margin="1,0"
+                    VerticalAlignment="Top"
+                    Foreground="{DynamicResource MahApps.Brushes.IdealForeground}"
+                    Text="{Binding ElementName=txbFilters, Path=Text}"
+                    Visibility="{c:Binding !FilterVisible,
+                                           Mode=OneWay,
+                                           UpdateSourceTrigger=PropertyChanged}">
+                    <TextBlock.LayoutTransform>
+                        <TransformGroup>
+                            <RotateTransform Angle="-90" />
+                        </TransformGroup>
+                    </TextBlock.LayoutTransform>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                            <i:InvokeCommandAction Command="{Binding ComandoAlterarTamanhoFiltro}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </TextBlock>
+            </Grid>
+
+            <GroupBox
+                x:Name="grpResultados"
+                Grid.Column="1"
+                Margin="2"
+                Header="Resultados">
+                <AdornerDecorator>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <syncfusion:SfDataGrid
+                            x:Name="GridPesquisa"
+                            Grid.Row="0"
+                            AllowDrop="False"
+                            ItemsSource="{Binding ListaResultadosPesquisaOrdemServico, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, IsAsync=True}"
+                            SelectedItem="{Binding ResultadoPesquisaOrdemServicoSelecionado, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
+                            ToolTip="Clique duas vezes para abrir o registro ou clique com o botão direito para ver as opções">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding ComandoAbrirProposta}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <syncfusion:SfDataGrid.Resources>
+                                <proxies:BindingProxy x:Key="proxy" Data="{Binding}" />
+                            </syncfusion:SfDataGrid.Resources>
+                            <syncfusion:SfDataGrid.RecordContextMenu>
+                                <ContextMenu>
+                                    <MenuItem
+                                        x:Name="mniAbrirProposta"
+                                        Command="{Binding Path=Data.ComandoAbrirProposta, Source={StaticResource proxy}}"
+                                        Header="Abrir">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Margin="2"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="OpenInNew" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem x:Name="mniVisualizarProposta" Header="Visualizar">
+                                        <MenuItem.Icon>
+                                            <iconPacks:PackIconMaterial
+                                                Margin="2"
+                                                VerticalAlignment="Center"
+                                                Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                                Kind="FilePdfBox" />
+                                        </MenuItem.Icon>
+                                        <MenuItem
+                                            x:Name="mniVisualizarOSAtual"
+                                            Command="{Binding Data.ComandoVisualizarOrdemServicoAtual, Source={StaticResource proxy}}"
+                                            Header="OS atual" />
+                                        <MenuItem
+                                            x:Name="mniVisualizarOSPrimaria"
+                                            Command="{Binding Data.ComandoVisualizarOrdemServicoPrimaria, Source={StaticResource proxy}}"
+                                            Header="OS primária" />
+                                    </MenuItem>
+                                </ContextMenu>
+                            </syncfusion:SfDataGrid.RecordContextMenu>
+                            <syncfusion:SfDataGrid.Columns>
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data da inserção"
+                                    MappingName="DataInsercao"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridTextColumn HeaderText="Usuário" MappingName="NomeUsuario" />
+                                <syncfusion:GridTextColumn HeaderText="Tipo" MappingName="NomeTipoOS" />
+                                <syncfusion:GridTextColumn HeaderText="Cliente" MappingName="NomeCliente" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Ordem de serviço atual"
+                                    MappingName="NumeroOrdemServicoAtual"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Ordem de serviço primária"
+                                    MappingName="NumeroOrdemServicoPrimaria"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridTextColumn HeaderText="Tipo da manutenção" MappingName="NomeTipoManutencao" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Número do chamado"
+                                    MappingName="NumeroChamado"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data do chamado"
+                                    MappingName="DataChamado"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data do atendimento"
+                                    MappingName="DataAtendimento"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridTextColumn HeaderText="Mastro" MappingName="Mastro" />
+                                <syncfusion:GridTextColumn HeaderText="Código da falha" MappingName="CodigoFalha" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Etapas concluídas"
+                                    MappingName="EtapasConcluidas"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Horímetro"
+                                    MappingName="Horimetro"
+                                    NumberGroupSeparator="3" />
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data da saída"
+                                    MappingName="DataSaida"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data da chegada"
+                                    MappingName="DataChegada"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridDateTimeColumn
+                                    CustomPattern="dd/MM/yyyy HH:mm"
+                                    HeaderText="Data do retorno"
+                                    MappingName="DataRetorno"
+                                    Pattern="CustomPattern" />
+                                <syncfusion:GridTextColumn HeaderText="Equipamento após manutenção" MappingName="NomeEquipamentoAposManutencao" />
+                                <syncfusion:GridCheckBoxColumn HeaderText="Equipamento operacional" MappingName="EquipamentoOperacional" />
+                                <syncfusion:GridTextColumn HeaderText="Executante do serviço" MappingName="NomeExecutanteServico" />
+                                <syncfusion:GridTextColumn HeaderText="Série do equipamento" MappingName="NomeSerie" />
+                                <syncfusion:GridTextColumn HeaderText="Fabricante" MappingName="NomeFabricante" />
+                                <syncfusion:GridTextColumn HeaderText="Tipo do equipamento" MappingName="NomeTipoEquipamento" />
+                                <syncfusion:GridTextColumn HeaderText="Modelo" MappingName="NomeModelo" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Quantidade de itens"
+                                    MappingName="QuantidadeItens"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridNumericColumn
+                                    HeaderText="Quantidade de eventos"
+                                    MappingName="QuantidadeEventos"
+                                    NumberDecimalDigits="0" />
+                                <syncfusion:GridTextColumn HeaderText="Tempo para resposta" MappingName="TempoResposta" />
+                                <syncfusion:GridTextColumn HeaderText="Tempo para atendimento" MappingName="TempoAtendimento" />
+                            </syncfusion:SfDataGrid.Columns>
+                        </syncfusion:SfDataGrid>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="125" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                d:Text="Resultados encontrados: "
+                                FontWeight="Bold"
+                                Text="{Binding TextoResultadosEncontrados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                d:Text="*Limitado a x resultado (s)"
+                                Text="{Binding TextoLimiteDeResultados, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button
+                                x:Name="btnExportar"
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Grid.Column="1"
+                                Margin="2"
+                                VerticalAlignment="Center"
+                                Command="{Binding ComandoExportarPesquisa}"
+                                IsEnabled="{Binding ListaResultadosPesquisaOrdemServico.Count, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <iconPacks:PackIconMaterial
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                        Kind="DatabaseExport" />
+                                    <TextBlock Grid.Column="1">Exportar</TextBlock>
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </AdornerDecorator>
+            </GroupBox>
+        </Grid>
+        <!--  Barra de status contendo uma barra de progresso e um texto  -->
+        <StackPanel
+            x:Name="grdBarraDeStatus"
+            Grid.Row="2"
+            Background="LightGray"
+            Orientation="Vertical">
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="Visible"
+                Value="{Binding ValorProgresso}" />
+            <StatusBar Name="stbStatus" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
+                <TextBlock
+                    x:Name="tblStatus"
+                    Foreground="Black"
+                    Text="{Binding MensagemStatus, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </StackPanel>
+    </Grid>
+</UserControl>

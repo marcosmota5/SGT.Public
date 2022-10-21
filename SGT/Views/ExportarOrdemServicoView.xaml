@@ -1,0 +1,337 @@
+﻿<UserControl
+    x:Class="SGT.Views.ExportarOrdemServicoView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helperClasses="clr-namespace:SGT.HelperClasses"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+    xmlns:local="clr-namespace:SGT.Views"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    d:DesignHeight="500"
+    d:DesignWidth="800"
+    mah:DialogParticipation.Register="{Binding}"
+    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+    mc:Ignorable="d">
+    <Grid Margin="2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="160" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="28" />
+        </Grid.RowDefinitions>
+        <StackPanel
+            Grid.Column="0"
+            IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            Orientation="Vertical">
+            <GroupBox
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="2"
+                Header="Opções">
+                <StackPanel Orientation="Vertical">
+                    <Grid
+                        x:Name="grdFormatar"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Height="50"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        ToolTip="Marque se deseja que o arquivo do Excel exportado tenha os formatos das colunas de acordo com o tipo do dado">
+                        <Grid.Tag>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="OrdemServico.EquipamentoOperacional"
+                                UpdateSourceTrigger="PropertyChanged" />
+                        </Grid.Tag>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <Label
+                            x:Name="lblFormatar"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Content="Formatar" />
+                        <RadioButton
+                            x:Name="rdbFormatar1"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Content="Sim"
+                            IsChecked="{c:Binding FormatarExportacao,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                        <RadioButton
+                            x:Name="rdbFormatar2"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Content="Não"
+                            IsChecked="{c:Binding !FormatarExportacao,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                    <Grid
+                        x:Name="grdApenasAtivos"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Height="50"
+                        Margin="2"
+                        VerticalAlignment="Center"
+                        ToolTip="Marque se deseja que sejam exportados apenas os registros com status ativo">
+                        <Grid.Tag>
+                            <Binding
+                                Mode="TwoWay"
+                                Path="OrdemServico.EquipamentoOperacional"
+                                UpdateSourceTrigger="PropertyChanged" />
+                        </Grid.Tag>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="20" />
+                        </Grid.RowDefinitions>
+                        <Label
+                            x:Name="lblApenasAtivos"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Content="Apenas registros ativos" />
+                        <RadioButton
+                            x:Name="rdbApenasAtivos1"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Content="Sim"
+                            IsChecked="{c:Binding ApenasRegistrosAtivos,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                        <RadioButton
+                            x:Name="rdbApenasAtivos2"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Content="Não"
+                            IsChecked="{c:Binding !ApenasRegistrosAtivos,
+                                                  Mode=TwoWay,
+                                                  UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Grid.Row="1"
+                Grid.Column="0"
+                Margin="2"
+                Header="Data de inserção">
+                <StackPanel Orientation="Vertical">
+                    <Grid x:Name="grdFiltroDataInsercao" ToolTip="Data em que o registros foi salvo">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DatePicker
+                            x:Name="datDeInsercao"
+                            Grid.Row="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="De"
+                            DisplayDateEnd="{Binding DataInsercaoAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataInsercaoDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataInsercaoDe}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                        <DatePicker
+                            x:Name="datAteInsercao"
+                            Grid.Row="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Até"
+                            DisplayDateStart="{Binding DataInsercaoDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataInsercaoAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataInsercaoAte}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox
+                Grid.Row="2"
+                Grid.Column="0"
+                Margin="2"
+                Header="Data de atendimento">
+                <StackPanel Orientation="Vertical">
+                    <Grid x:Name="grdFiltroDataAtendimento" ToolTip="Data de atendimento da ordem de serviço">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DatePicker
+                            x:Name="datDeAtendimento"
+                            Grid.Row="0"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="De"
+                            DisplayDateEnd="{Binding DataAtendimentoAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataAtendimentoDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAtendimentoDe}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                        <DatePicker
+                            x:Name="datAteAtendimento"
+                            Grid.Row="1"
+                            Margin="2"
+                            VerticalAlignment="Center"
+                            mah:TextBoxHelper.ClearTextButton="{Binding RelativeSource={RelativeSource Self}, Path=(mah:TextBoxHelper.HasText), Mode=OneWay}"
+                            mah:TextBoxHelper.UseFloatingWatermark="True"
+                            mah:TextBoxHelper.Watermark="Até"
+                            DisplayDateStart="{Binding DataAtendimentoDe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            IsTodayHighlighted="True"
+                            SelectedDate="{Binding DataAtendimentoAte, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SelectedDateFormat="Short">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="LostFocus">
+                                    <i:InvokeCommandAction Command="{Binding ComandoVerificaDataAtendimentoAte}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </DatePicker>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <GroupBox
+            Grid.Column="1"
+            Margin="2"
+            Header="Outros filtros"
+            IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <syncfusion:SfTreeView
+                AutoExpandMode="AllNodes"
+                CheckBoxMode="Recursive"
+                CheckedItems="{Binding FiltrosSelecionados}"
+                ChildPropertyName="Filtros"
+                FocusVisualStyle="{x:Null}"
+                IsAnimationEnabled="False"
+                ItemTemplateDataContextType="Node"
+                ItemsSource="{Binding FiltroExportacao}"
+                NodePopulationMode="Instant"
+                ShowLines="True">
+                <syncfusion:SfTreeView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <CheckBox
+                                x:Name="checkBox"
+                                FocusVisualStyle="{x:Null}"
+                                IsChecked="{Binding IsChecked}" />
+                            <TextBlock
+                                Margin="25,0,0,0"
+                                VerticalAlignment="Center"
+                                Text="{Binding Content.Nome}" />
+                        </Grid>
+                    </DataTemplate>
+                </syncfusion:SfTreeView.ItemTemplate>
+            </syncfusion:SfTreeView>
+        </GroupBox>
+        <StackPanel
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+            <Button
+                x:Name="btnCancelar"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Width="100"
+                Margin="2"
+                VerticalAlignment="Center"
+                Command="{Binding ComandoCancelar}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="Red"
+                        Kind="Cancel" />
+                    <TextBlock Grid.Column="1">Cancelar</TextBlock>
+                </Grid>
+            </Button>
+            <Button
+                x:Name="btnExportar"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Grid.Column="1"
+                Width="100"
+                Margin="2"
+                VerticalAlignment="Center"
+                Command="{Binding ComandoExportar}"
+                IsEnabled="{Binding ControlesHabilitados, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <iconPacks:PackIconMaterial
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                        Kind="DatabaseExport" />
+                    <TextBlock Grid.Column="1">Exportar</TextBlock>
+                </Grid>
+            </Button>
+        </StackPanel>
+        <StackPanel
+            x:Name="grdBarraDeStatus"
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            Background="LightGray"
+            Orientation="Vertical">
+            <mah:MetroProgressBar
+                x:Name="pgbProgresso"
+                IsIndeterminate="{Binding ProgressoEhIndeterminavel, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Maximum="100"
+                Minimum="0"
+                Visibility="Visible"
+                Value="{Binding ValorProgresso}" />
+            <StatusBar Name="stbStatus" Background="{DynamicResource MahApps.Brushes.Gray.SemiTransparent}">
+                <TextBlock
+                    x:Name="tblStatus"
+                    Foreground="Black"
+                    Text="{Binding MensagemStatus, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StatusBar>
+        </StackPanel>
+    </Grid>
+</UserControl>
