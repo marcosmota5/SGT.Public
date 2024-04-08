@@ -21,7 +21,7 @@
 <ul>
   <li>System Access Control</li>
   <li>Encrypting User Passwords</li>
-  <li>Proposal control
+  <li>Sales proposals management
     <ul>
       <li>Insertion, editing and review of proposals with automatic code generation</li>
       <li>Visualization of proposals, being possible to export to different formats (PDF, Word, Excel etc.), also allowing sending by e-mail or replying to e-mails directly</li>
@@ -36,7 +36,7 @@
       <li>Among others</li>
     </ul>
   </li>
-  <li>Control of work orders
+  <li>Service orders management
     <ul>
       <li>Entering and Editing Work Orders</li>
       <li>Export parts, events, inconsistencies directly to Excel</li>
@@ -84,4 +84,4 @@ A big thanks to [SyncFusion](https://www.syncfusion.com/) for providing a lot of
 
 ## Contributors
 
-- [Marcos Mota / Developer](mailto:marcosmota5@hotmail.com)
+- [Marcos Mota / Developer](https://www.linkedin.com/in/marcosmota5/)
